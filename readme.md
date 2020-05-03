@@ -32,7 +32,7 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
 
 - Create a cache folder name `coffeeCache` in `app/storage/`. So you have this folder created: `app/storage/coffeeCache`.
 - Add a `.gitignore` in `app/storage/coffeeCache` and put [this contents](https://github.com/linslin/laravel-coffee-cache/blob/master/app/storage/coffeeCache/.gitignore) into. 
-- Edit your `app/public/index.php` and add those line on the top of your PHP script:
+- Edit your `app/public/index.php` and add this lines on the top of your PHP script:
 
     ```php
     require_once './../vendor/linslin/laravel-coffee-cache/CoffeeCache.php';
@@ -59,8 +59,38 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
     
     $coffeeCache->finalize();
     ```
-    You can also compare your edits with this [example index.php](https://github.com/linslin/laravel-coffee-cache/blob/master/app/public/index.php).
-- larave-coffee-cache should now start to cache your GET Requests and creating cache files in `app/storage/coffeeCache`.
+    You can also compare your edits with this [example index.php](https://github.com/linslin/laravel-coffee-cache/blob/master/app/public/index.php). 
+    In the end your `index.php` should look like this:
+    ```php
+    <?php
+    require_once './../vendor/linslin/laravel-coffee-cache/CoffeeCache.php';
+    
+    $coffeeCache = new CoffeeCache();
+    $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
+    $coffeeCache->handle();
+    
+    
+    require __DIR__.'/../bootstrap/autoload.php';
+    $app = require_once __DIR__.'/../bootstrap/app.php';
+    $kernel = $app->make('Illuminate\Contracts\Http\Kernel');
+    
+    /** @var Illuminate\Http\Response $response */
+    $response = $kernel->handle(
+        $request = Illuminate\Http\Request::capture()
+    );
+    
+    if ($coffeeCache->isCacheAble()) {
+        $response->sendHeaders();
+        echo $response->content();
+    } else {
+        $response->send();
+    }
+    
+    $kernel->terminate($request, $response);
+    
+    $coffeeCache->finalize();
+    ```
+- laravel-coffee-cache should now start to cache your GET Requests and creating cache files in `app/storage/coffeeCache`.
      
 
 ## Changelog
