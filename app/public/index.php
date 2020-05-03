@@ -1,6 +1,6 @@
 <?php
 
-require_once '../app/Helpers/CoffeeCache.php';
+require_once './../vendor/linslin/laravel-coffee-cache/CoffeeCache.php';
 
 $coffeeCache = new CoffeeCache();
 $coffeeCache->handle();

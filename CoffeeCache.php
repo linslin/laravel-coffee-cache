@@ -20,7 +20,7 @@ class CoffeeCache {
      *
      * @var int
      */
-    private $cacheTime = 60 * 60 * 24 * 1 ;
+    public $cacheTime = 60 * 60 * 24 * 1;
 
     /**
      * CoffeeCache constructor.

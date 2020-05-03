@@ -30,6 +30,11 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
 
 ## Configuration and usage
 
+- Create a cache folder name `coffeeCache` in `app/storage/`. So you have this folder created: `app/storage/coffeeCache`.
+- Add a `.gitignore` in `app/storage/coffeeCache` and put [this contents](https://github.com/linslin/laravel-coffee-cache/blob/master/app/storage/coffeeCache/.gitignore) into. 
+- 
+
+
 ## Changelog
 
 ### 1.0.0 
