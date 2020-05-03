@@ -2,6 +2,10 @@
 
 /**
  * Class coffeeCache
+ *
+ * @property int $cacheTime
+ * @property string $cacheDirPath
+ * @property string $cachedFilename
  */
 class CoffeeCache {
 
@@ -41,6 +45,7 @@ class CoffeeCache {
             .'coffeeCache'.DIRECTORY_SEPARATOR;
     }
 
+    
     /**
      * @return bool
      */
