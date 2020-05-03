@@ -28,6 +28,9 @@ class CoffeeCache {
     private $cachedFilename = '';
 
 
+    /**
+     * CoffeeCache constructor.
+     */
     public function __construct()
     {
         //Init
