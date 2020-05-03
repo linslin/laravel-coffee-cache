@@ -10,6 +10,8 @@
 class CoffeeCache {
 
 
+    // ############################################### Class variables // ##############################################
+
     /**
      * @var string
      */
@@ -32,6 +34,8 @@ class CoffeeCache {
     private $cachedFilename = '';
 
 
+    // ################################################ Class methods // ###############################################
+
     /**
      * CoffeeCache constructor.
      */
@@ -45,7 +49,7 @@ class CoffeeCache {
             .'coffeeCache'.DIRECTORY_SEPARATOR;
     }
 
-    
+
     /**
      * @return bool
      */
