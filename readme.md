@@ -4,5 +4,11 @@ By default, all GET-Requests will be cached.
 
 It's a coffee cache. You can drink more coffee instead of spending time to optimize your application. Mokka Mokka!
 
+## Why and when should you use?
+
 ## Installation
 
+## Changelog
+
+### 1.0.0 
+- First stable release
