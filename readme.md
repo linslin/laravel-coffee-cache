@@ -5,7 +5,7 @@ It will push your application into light speed. By default, all GET-Requests wil
 It's a coffee cache. You can drink more coffee instead of spending time to optimize your application or server 
 environment. Mokka Mokka!
 
-## Why and when should you use laravel-coffee-cache?
+## Why and when should I use laravel-coffee-cache?
 Laravel getting bigger and bigger over the years. Today laravel is a very nice framework which helps you to speed up your
 software development and programming in its best way. On the other hand laravel is slow in handling requests and consumes
 a lot of memory per request, even if you use View or Database caches. The bootstrapping of laravel takes a bit time
