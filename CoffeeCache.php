@@ -36,8 +36,11 @@ class CoffeeCache {
 
     // ################################################ Class methods // ###############################################
 
+
     /**
      * CoffeeCache constructor.
+     * 
+     * @param string $publicDir
      */
     public function __construct($publicDir)
     {
