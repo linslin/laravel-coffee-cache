@@ -39,7 +39,7 @@ class CoffeeCache {
 
     /**
      * CoffeeCache constructor.
-     * 
+     *
      * @param string $publicDir
      */
     public function __construct($publicDir)
