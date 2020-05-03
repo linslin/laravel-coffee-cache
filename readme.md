@@ -27,6 +27,9 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
 
 ## Installation
 
+
+## Configuration and usage
+
 ## Changelog
 
 ### 1.0.0 
