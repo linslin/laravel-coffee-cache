@@ -1,6 +1,6 @@
 # ☕ laravel-coffee-cache
-File based lever out cache for laravel. This cache hook in before composer autoload and Laravel boostrapping. It will push your application into light speed.
-By default, all GET-Requests will be cached.
+File based lever out cache for laravel views. This cache hook in before composer autoload and Laravel boostrapping. 
+It will push your application into light speed. By default, all GET-Requests will be cached.
 
 It's a coffee cache. You can drink more coffee instead of spending time to optimize your application or server 
 environment. Mokka Mokka!
@@ -26,7 +26,7 @@ You will be able to create highly frequented web applications and save a lot of 
 or your server / server capacities (CPU, Memory) run at full load. Give it a try. 
 
 ## Installation
-
+  composer require --prefer-dist linslin/laravel-coffee-cache "*"
 
 ## Configuration and usage
 
