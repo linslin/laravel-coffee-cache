@@ -26,7 +26,7 @@ You will be able to create highly frequented web applications and save a lot of 
 or your server / server capacities (CPU, Memory) run at full load. Give it a try. 
 
 ## Installation
-  composer require --prefer-dist linslin/laravel-coffee-cache "*"
+    composer require --prefer-dist linslin/laravel-coffee-cache "*"
 
 ## Configuration and usage
 
