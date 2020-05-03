@@ -61,7 +61,7 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
     ```
     You can also compare your edits with this [example index.php](https://github.com/linslin/laravel-coffee-cache/blob/master/app/public/index.php). 
     
-    **In the end your `index.php` should look like this:**
+    **In the end your `app/public/index.php` should look like this:**
     ```php
     <?php
     require_once './../vendor/linslin/laravel-coffee-cache/CoffeeCache.php';
