@@ -39,12 +39,11 @@ class CoffeeCache {
     /**
      * CoffeeCache constructor.
      */
-    public function __construct()
+    public function __construct($publicDir)
     {
         //Init
         $this->cachedFilename = sha1($_SERVER['REQUEST_URI']);
-        $this->cacheDirPath = __DIR__.DIRECTORY_SEPARATOR.'..'
-            .DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
+        $this->cacheDirPath = $publicDir.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
             .'storage'.DIRECTORY_SEPARATOR
             .'coffeeCache'.DIRECTORY_SEPARATOR;
     }

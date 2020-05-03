@@ -37,7 +37,7 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
     ```php
     require_once './../vendor/linslin/laravel-coffee-cache/CoffeeCache.php';
     
-    $coffeeCache = new CoffeeCache();
+    $coffeeCache = new CoffeeCache(__DIR__);
     $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
     $coffeeCache->handle();
     ```
@@ -66,7 +66,7 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
     <?php
     require_once './../vendor/linslin/laravel-coffee-cache/CoffeeCache.php';
     
-    $coffeeCache = new CoffeeCache();
+    $coffeeCache = new CoffeeCache(__DIR__);
     $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
     $coffeeCache->handle();
     

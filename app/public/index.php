@@ -2,7 +2,7 @@
 
 require_once './../vendor/linslin/laravel-coffee-cache/CoffeeCache.php';
 
-$coffeeCache = new CoffeeCache();
+$coffeeCache = new CoffeeCache(__DIR__);
 $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
 $coffeeCache->handle();
 
