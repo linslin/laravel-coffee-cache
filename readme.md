@@ -2,7 +2,8 @@
 File based lever out cache for laravel. This cache hook in before composer autoload and Laravel boostrapping. It will push your application into light speed.
 By default, all GET-Requests will be cached.
 
-It's a coffee cache. You can drink more coffee instead of spending time to optimize your application. Mokka Mokka!
+It's a coffee cache. You can drink more coffee instead of spending time to optimize your application or server 
+environment. Mokka Mokka!
 
 ## Why and when should you use laravel-coffee-cache?
 Laravel getting bigger and bigger over the years. Today laravel is a very nice framework which helps you to speed up your
