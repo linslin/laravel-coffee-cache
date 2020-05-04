@@ -4,6 +4,10 @@ require_once './../vendor/linslin/laravel-coffee-cache/CoffeeCache.php';
 
 $coffeeCache = new CoffeeCache(__DIR__);
 $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
+$coffeeCache->enabledHosts = [
+    'www.production.com',
+    'subdomain.production.com',
+]; // optional, leave this array empty if you want to cache all domains
 $coffeeCache->handle();
 
 

@@ -12,10 +12,6 @@ class CoffeeCache {
 
     // ############################################### Class variables // ##############################################
 
-    /**
-     * @var string
-     */
-    private $cacheDirPath = '';
 
     /**
      * Cache time in seconds
@@ -29,9 +25,20 @@ class CoffeeCache {
     public $cacheTime = 60 * 60 * 24 * 1;
 
     /**
-     * CoffeeCache constructor.
+     * @var string
+     */
+    private $cacheDirPath = '';
+
+    /**
+     * Cached filename
+     * @var string
      */
     private $cachedFilename = '';
+
+    /**
+     * Enabled hosts list. Optional, leave it as empty array if you want to cache all domains.
+     */
+    public $enabledHosts = [];
 
 
     // ################################################ Class methods // ###############################################
@@ -57,7 +64,24 @@ class CoffeeCache {
      */
     public function isCacheAble ()
     {
-        return $_SERVER['REQUEST_METHOD'] === 'GET';
+        //init
+        $domainShouldBeCached = false;
+
+        if (sizeof($this->enabledHosts) > 0) {
+            
+            $host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
+
+            foreach ($this->enabledHosts as $cachedHostName) {
+                if (strpos($host, $cachedHostName) !== false) {
+                    $domainShouldBeCached = true;
+                    break;
+                }
+            }
+        } else {
+            $domainShouldBeCached = true;
+        }
+
+        return $_SERVER['REQUEST_METHOD'] === 'GET' && $domainShouldBeCached;
     }
 
 

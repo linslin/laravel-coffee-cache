@@ -39,6 +39,10 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
     
     $coffeeCache = new CoffeeCache(__DIR__);
     $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
+    $coffeeCache->enabledHosts = [
+        'www.production.com',
+        'subdomain.production.com',
+    ]; // optional, leave this array empty if you want to cache all domains.
     $coffeeCache->handle();
     ```
     Replace all code lines under `$kernel = $app->make('Illuminate\Contracts\Http\Kernel');` with this lines:
@@ -95,6 +99,9 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
      
 
 ## Changelog
+
+### 1.1.0 
+- Added option to enable caching for specific domains. This also works on reverse proxies if "HTTP_X_FORWARDED_HOST" isset.  
 
 ### 1.0.0 
 - First stable release
