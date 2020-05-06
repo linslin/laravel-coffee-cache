@@ -76,6 +76,14 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
     
     $coffeeCache = new CoffeeCache(__DIR__);
     $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
+    $coffeeCache->enabledHosts = [
+      'www.production.com',
+      'subdomain.production.com',
+    ]; // optional, leave this array empty if you want to cache all domains.
+    $coffeeCache->enabledHttpStatusCodes = [
+    '200',
+    '202',
+    ]; //list of HTTP-Status codes which should be cached.
     $coffeeCache->handle();
     
     
