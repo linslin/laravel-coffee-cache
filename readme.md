@@ -28,7 +28,38 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
 ## Installation
     composer require --prefer-dist linslin/laravel-coffee-cache "*"
 
-## Configuration and usage
+## API Documentation
+
+#### Initialize instance
+Should be place in your `app/public/index.php` file.
+
+    $coffeeCache = new CoffeeCache(__DIR__);
+    
+#### Configure enabled hosts for caching [optional]
+Matching hosts which should be cached. Default: Cache all domains
+
+    $coffeeCache->enabledHosts = [
+        'www.production.com',
+        'subdomain.production.com',
+    ]; 
+    
+        
+#### Configure HTTP-Status codes which should be cached [optional]
+List of HTTP-Status codes which should be cached. Default: Cache "200" only. 
+
+    $coffeeCache->enabledHttpStatusCodes = [
+      '200',
+      '202',
+    ]; 
+    
+#### Exclude URL pattern from being cached. [optional]
+URL patterns of URLs which should not be cache. This example will exclude URLS which have "/admin" somewhere in the URL. 
+
+    $coffeeCache->excludeUrls = [
+        '/admin',
+    ]; 
+
+## Setup and usage
 
 - Create a cache folder name `coffeeCache` in `app/storage/`. So you have this folder created: `app/storage/coffeeCache`.
 - Add a `.gitignore` in `app/storage/coffeeCache` and put [this contents](https://github.com/linslin/laravel-coffee-cache/blob/master/app/storage/coffeeCache/.gitignore) into. 
@@ -46,7 +77,10 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
     $coffeeCache->enabledHttpStatusCodes = [
       '200',
       '202',
-    ]; //list of HTTP-Status codes which should be cached.
+    ]; // list of HTTP-Status codes which should be cached.
+    $coffeeCache->excludeUrls = [
+        '/admin',
+    ]; // URL pattern of URLs which should not be cache. This example will exclude URLS which have "/admin" somewhere in the URL. 
     $coffeeCache->handle();
     ```
     Replace all code lines under `$kernel = $app->make('Illuminate\Contracts\Http\Kernel');` with this lines:
@@ -83,7 +117,10 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
     $coffeeCache->enabledHttpStatusCodes = [
     '200',
     '202',
-    ]; //list of HTTP-Status codes which should be cached.
+    ]; // list of HTTP-Status codes which should be cached.
+    $coffeeCache->excludeUrls = [
+        '/admin',
+    ]; // URL pattern of URLs which should not be cache. This example will exclude URLS which have "/admin" somewhere in the URL. 
     $coffeeCache->handle();
     
     
@@ -112,6 +149,9 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
      
 
 ## Changelog
+
+### 1.3.0 
+- Added option to exclude URL patterns from caching. E.g. URLs which include "/admin". 
 
 ### 1.2.0 
 - Added option to enable caching for specific HTTP-Status codes. Default is "200 Ok".

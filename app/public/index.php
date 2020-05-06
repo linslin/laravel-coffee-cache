@@ -11,7 +11,10 @@ $coffeeCache->enabledHosts = [
 $coffeeCache->enabledHttpStatusCodes = [
     '200',
     '202',
-]; //list of HTTP-Status codes which should be cached.
+]; // list of HTTP-Status codes which should be cached.
+$coffeeCache->excludeUrls = [
+    '/admin',
+]; // URL pattern of URLs which should not be cache. This example will exclude URLS which have "/admin" somewhere in the URL.
 $coffeeCache->handle();
 
 
