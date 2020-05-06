@@ -19,7 +19,7 @@ for each request. It will be push your application into light speed.
 
 **The difference to existing cache systems for laravel is:** You don't need to have a DB cache based on memcached or 
 even a view file based cache placed in a laravel middleware. **Hint:** It's nice approach is to combine your DB Cache with 
-☕ **laravel-coffee-cache**. Use your DB Cache even if you have ☕ **laravel-coffee-cache** running in the foreground. 
+**laravel-coffee-cache**. Use your DB Cache even if you have **laravel-coffee-cache** running in the foreground. 
 
 You will be able to create highly frequented web applications and save a lot of hardware resources 
 (which also saves money) with ☕ **laravel-coffee-cache**. It makes to optimize your applications if your website is too slow
@@ -121,3 +121,7 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
 
 ### 1.0.0 
 - First stable release
+
+## Credits
+Thanks to [robre21](https://github.com/robre21) 
+and [delacruzsippel](https://github.com/delacruzsippel)! 
