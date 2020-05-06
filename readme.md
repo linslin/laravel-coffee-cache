@@ -106,7 +106,7 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
 ## Changelog
 
 ### 1.2.0 
-- Added option to enable caching for specific HTTP-Status codes. Default ist "200 Ok".
+- Added option to enable caching for specific HTTP-Status codes. Default is "200 Ok".
 
 ### 1.1.0 
 - Added option to enable caching for specific domains. This also works on reverse proxies if "HTTP_X_FORWARDED_HOST" isset.  
