@@ -53,6 +53,11 @@ class CoffeeCache {
      */
     public $httpStatusCode = null;
 
+    /**
+     * @var string[]
+     */
+    public $excludeUrls = [];
+
 
     // ################################################ Class methods // ###############################################
 
@@ -94,7 +99,9 @@ class CoffeeCache {
             $domainShouldBeCached = true;
         }
 
-        return $_SERVER['REQUEST_METHOD'] === 'GET' && $domainShouldBeCached;
+        return $_SERVER['REQUEST_METHOD'] === 'GET'
+            && $domainShouldBeCached
+            && !$this->detectExcludedUrl();
     }
 
 
@@ -128,11 +135,29 @@ class CoffeeCache {
         }
     }
 
+
     /**
      * @return bool
      */
     private function detectStatusCode ()
     {
         return in_array((string)$this->httpStatusCode, $this->enabledHttpStatusCodes);
+    }
+
+
+    /**
+     * @return bool
+     */
+    private function detectExcludedUrl ()
+    {
+        if (sizeof($this->excludeUrls) > 0) {
+            foreach ($this->excludeUrls as $excludeUrl) {
+                if (strpos($_SERVER['REQUEST_URI'], $excludeUrl) !== false) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
