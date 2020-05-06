@@ -40,6 +40,19 @@ class CoffeeCache {
      */
     public $enabledHosts = [];
 
+    /**
+     * List of enabled http status codes, default is 200 OK.
+     * @var string[]
+     */
+    public $enabledHttpStatusCodes = [
+        '200'
+    ];
+
+    /**
+     * @var null|int
+     */
+    public $httpStatusCode = null;
+
 
     // ################################################ Class methods // ###############################################
 
@@ -108,11 +121,18 @@ class CoffeeCache {
      */
     public function finalize ()
     {
-        if ($this->isCacheAble()) {
+        if ($this->isCacheAble() && $this->detectStatusCode()) {
             file_put_contents($this->cacheDirPath.$this->cachedFilename,  ob_get_contents());
             ob_end_clean();
             $this->handle();
         }
     }
 
+    /**
+     * @return bool
+     */
+    private function detectStatusCode ()
+    {
+        return in_array((string)$this->httpStatusCode, $this->enabledHttpStatusCodes);
+    }
 }

@@ -8,6 +8,10 @@ $coffeeCache->enabledHosts = [
     'www.production.com',
     'subdomain.production.com',
 ]; // optional, leave this array empty if you want to cache all domains
+$coffeeCache->enabledHttpStatusCodes = [
+    '200',
+    '202',
+]; //list of HTTP-Status codes which should be cached.
 $coffeeCache->handle();
 
 
@@ -68,6 +72,7 @@ $response = $kernel->handle(
 );
 
 if ($coffeeCache->isCacheAble()) {
+    $coffeeCache->httpStatusCode = $response->status();
     $response->sendHeaders();
     echo $response->content();
 } else {
