@@ -61,8 +61,8 @@ URL patterns of URLs which should not be cache. This example will exclude URLS w
 
 ## Setup and usage
 
-- Create a cache folder name `coffeeCache` in `app/storage/`. So you have this folder created: `app/storage/coffeeCache`.
-- Add a `.gitignore` in `app/storage/coffeeCache` and put [this contents](https://github.com/linslin/laravel-coffee-cache/blob/master/app/storage/coffeeCache/.gitignore) into. 
+- Create a cache folder name `coffeeCache` in `app/storage/`. So you have this folder created: `/storage/coffeeCache`.
+- Add a `.gitignore` in `/storage/coffeeCache` and put [this contents](https://github.com/linslin/laravel-coffee-cache/blob/master/app/storage/coffeeCache/.gitignore) into. 
 - Edit your `app/public/index.php` and add this lines on the top of your PHP script:
 
     ```php
