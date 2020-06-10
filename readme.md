@@ -198,6 +198,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.5.0 
+- Added more helper function to facade. 
+
 ### 1.4.0 
 - Added facade to take control of cache files inside the laravel application. E.g. delete cache files. 
 
