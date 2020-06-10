@@ -1,4 +1,8 @@
 # ☕ laravel-coffee-cache
+
+[![Total Downloads](https://poser.pugx.org/linslin/laravel-coffee-cache/downloads)](https://packagist.org/packages/linslin/laravel-coffee-cache)
+[![License](https://poser.pugx.org/linslin/laravel-coffee-cache/license)](https://packagist.org/packages/linslin/laravel-coffee-cache)
+
 File based lever out view cache for **Laravel 4.x, 5.x 6.x and 7.x** . This cache hook in before composer autoload and 
 Laravel bootstrapping. It will push your application into light speed. By default, all GET-Requests will be cached.
 
@@ -104,8 +108,8 @@ E.g. inside a controller - example:
 
 ## Setup and usage
 
-- Create a cache folder name `coffeeCache` in `app/storage/`. So you have this folder created: `app/storage/coffeeCache`.
-- Add a `.gitignore` in `app/storage/coffeeCache` and put [this contents](https://github.com/linslin/laravel-coffee-cache/blob/master/app/storage/coffeeCache/.gitignore) into. 
+- Create a cache folder name `coffeeCache` in `app/storage/`. So you have this folder created: `/storage/coffeeCache`.
+- Add a `.gitignore` in `/storage/coffeeCache` and put [this contents](https://github.com/linslin/laravel-coffee-cache/blob/master/app/storage/coffeeCache/.gitignore) into. 
 - Edit your `app/public/index.php` and add this lines on the top of your PHP script:
 
     ```php
