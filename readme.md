@@ -27,11 +27,17 @@ or your server / server capacities (CPU, Memory) run at full load. Give it a try
 
 ## Installation
     composer require --prefer-dist linslin/laravel-coffee-cache "*"
+    
+## Register Facade
+If you want to use the facade to handle the cache files, add 
+this to your facades in `config/app.php` in the `alias` array:
 
-## API Documentation
+    'CoffeeCache' => linslin\CoffeeCache\Facades\CoffeeCache::class,
+
+## API Documentation 
 
 #### Initialize instance
-Should be place in your `app/public/index.php` file.
+Should be placed in your `app/public/index.php` file.
 
     $coffeeCache = new CoffeeCache(__DIR__);
     
@@ -58,6 +64,43 @@ URL patterns of URLs which should not be cache. This example will exclude URLS w
     $coffeeCache->excludeUrls = [
         '/admin',
     ]; 
+    
+## Facade API Documentation
+
+#### Manually delete cache files 
+E.g. inside a controller - example:
+
+    <?php
+    
+    namespace App\Http\Controllers\Admin\Shop;
+    
+    use App\Models\Shop;
+    use Illuminate\Http\Request;
+    use linslin\CoffeeCache\Facades\CoffeeCache;
+    
+    /**
+     * Class EntryController
+     * @package App\Http\Controllers\Admin
+     */
+    class EntryController extends ShopBaseController
+    {
+    
+        /**
+         * @param Request $request
+         * @param Shop $shop
+         * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+         */
+        public function update(Request $request, Shop $shop)
+        {
+            //manually delete cache file for a route (if exists)
+            CoffeeCache::clearCacheFile(route('shop.show', ['shop' => $shop->slug], false));
+    
+            return view('admin.shop.form',[
+                'shop' => $shop,
+            ]);
+        }
+    }
+
 
 ## Setup and usage
 
@@ -91,6 +134,7 @@ URL patterns of URLs which should not be cache. This example will exclude URLS w
     );
     
     if ($coffeeCache->isCacheAble()) {
+        $coffeeCache->httpStatusCode = $response->status();
         $response->sendHeaders();
         echo $response->content();
     } else {
@@ -149,6 +193,9 @@ URL patterns of URLs which should not be cache. This example will exclude URLS w
      
 
 ## Changelog
+
+### 1.4.0 
+- Added facade to take control of cache files inside the laravel application. E.g. delete cache files. 
 
 ### 1.3.0 
 - Added option to exclude URL patterns from caching. E.g. URLs which include "/admin". 

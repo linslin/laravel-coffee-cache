@@ -2,7 +2,11 @@
   "name": "linslin/laravel-coffee-cache",
   "description": "File based lever out cache for laravel. This cache hook in before composer autoload and Laravel boostrapping. It will push your application into light speed.",
   "type": "laravel-extension",
-  "keywords": ["laravel","cache","light speed"],
+  "keywords": [
+    "laravel",
+    "cache",
+    "light speed"
+  ],
   "license": "MIT",
   "authors": [
     {
@@ -13,5 +17,10 @@
   "require": {
   },
   "require-dev": {
+  },
+  "autoload": {
+    "psr-4": {
+      "linslin\\CoffeeCache\\": "src/"
+    }
   }
 }
