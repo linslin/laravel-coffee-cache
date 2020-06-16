@@ -71,7 +71,16 @@ URL patterns of URLs which should not be cache. This example will exclude URLS w
     
 ## Facade API Documentation
 
-#### Manually delete cache files 
+### Delete all cache files
+   
+    CoffeeCache::clearCache();
+
+### Manually delete cache files 
+
+    CoffeeCache::clearCacheFile(string $route);
+       
+
+#### Example: Manually delete cache a specific file
 E.g. inside a controller - example:
 
     <?php
@@ -198,8 +207,11 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.6.0 
+- Added helper function to delete all cache files (clear cache). 
+
 ### 1.5.0 
-- Added more helper function to facade. 
+- Added more helper functions to facade. 
 
 ### 1.4.0 
 - Added facade to take control of cache files inside the laravel application. E.g. delete cache files. 

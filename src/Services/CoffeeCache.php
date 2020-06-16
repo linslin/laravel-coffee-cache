@@ -26,6 +26,24 @@ class CoffeeCache
 
 
     /**
+     * Deletes all cache files in cache dir
+     */
+    public function clearCache ()
+    {
+        $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR;
+
+        if (is_dir($cacheFilePath)) {
+            $files = glob($cacheFilePath.'*');
+            foreach($files as $file){
+                if(is_file($file) && !strpos($file, '.gitignore')) {
+                    unlink($file);
+                }
+            }
+        }
+    }
+
+
+    /**
      * @param string $routePath
      * @return bool
      */
@@ -35,6 +53,7 @@ class CoffeeCache
 
         return file_exists($cacheFilePath) && !is_dir($cacheFilePath);
     }
+
 
     /**
      * @param string $routePath

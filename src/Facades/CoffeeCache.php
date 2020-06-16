@@ -10,6 +10,7 @@ use linslin\CoffeeCache\Services\CoffeeCache as CoffeeCacheService;
  * @package linslin\CoffeeCache
  *
  * @method static void clearCacheFile(string $routePath)
+ * @method static void clearCache()
  * @method static boolean cacheFileExists(string $routePath)
  * @method static boolean|Carbon getCacheFileCreatedDate(string $routePath)
  *
