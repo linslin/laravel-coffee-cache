@@ -80,6 +80,15 @@ class CoffeeCache {
     /**
      * @return bool
      */
+    public function isCacheEnabled ()
+    {
+        return !isset($_COOKIE['disable-cache']);
+    }
+
+
+    /**
+     * @return bool
+     */
     public function isCacheAble ()
     {
         //init
@@ -101,6 +110,7 @@ class CoffeeCache {
 
         return $_SERVER['REQUEST_METHOD'] === 'GET'
             && $domainShouldBeCached
+            && $this->isCacheEnabled()
             && !$this->detectExcludedUrl();
     }
 
@@ -114,6 +124,7 @@ class CoffeeCache {
 
             if (file_exists($this->cacheDirPath.$this->cachedFilename)
                 && filemtime($this->cacheDirPath.$this->cachedFilename) + $this->cacheTime > time()) {
+                header('coffee-cache: 1');
                 echo file_get_contents($this->cacheDirPath.$this->cachedFilename);
                 exit;
             } else {

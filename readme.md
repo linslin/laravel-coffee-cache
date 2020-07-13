@@ -207,6 +207,10 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.7.0
+- Added cookie handler to disable cache on a request: `setcookie("disable-cache", "1",  time() + (3600*24), "/", $request->getHost());`. 
+  If `disable-cache` isset as cookie, the request will no respond the cached file and will not create a cache file for this request. 
+
 ### 1.6.0 
 - Added helper function to delete all cache files (clear cache). 
 
