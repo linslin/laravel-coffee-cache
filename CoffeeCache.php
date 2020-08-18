@@ -142,9 +142,12 @@ class CoffeeCache {
         if ($this->isCacheAble() && $this->detectStatusCode()) {
 
             try {
-                file_put_contents($this->cacheDirPath.$this->cachedFilename,  ob_get_contents());
+                file_put_contents($this->cacheDirPath.$this->cachedFilename, ob_get_contents());
             } catch (Exception $exception) {
                 //log this later
+                if (file_exists($this->cacheDirPath.$this->cachedFilename)) {
+                    unlink($this->cacheDirPath.$this->cachedFilename);
+                }
             }
 
             ob_end_clean();

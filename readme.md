@@ -207,6 +207,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.7.2
+- Fixed writing empty files on file system. 
+
 ### 1.7.1
 - Catching exception when cache file was not writeable.
 
