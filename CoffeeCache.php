@@ -140,7 +140,13 @@ class CoffeeCache {
     public function finalize ()
     {
         if ($this->isCacheAble() && $this->detectStatusCode()) {
-            file_put_contents($this->cacheDirPath.$this->cachedFilename,  ob_get_contents());
+
+            try {
+                file_put_contents($this->cacheDirPath.$this->cachedFilename,  ob_get_contents());
+            } catch (Exception $exception) {
+                //log this later
+            }
+
             ob_end_clean();
             $this->handle();
         }

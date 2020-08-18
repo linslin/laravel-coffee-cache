@@ -207,6 +207,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.7.1
+- Catching exception when cache file was not writeable.
+
 ### 1.7.0
 - Added cookie handler to disable cache on a request: `setcookie("disable-cache", "1",  time() + (3600*24), "/", $request->getHost());`. 
   If `disable-cache` isset as cookie, the request will no respond the cached file and will not create a cache file for this request. 
