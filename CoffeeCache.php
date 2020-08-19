@@ -25,6 +25,17 @@ class CoffeeCache {
     public $cacheTime = 60 * 60 * 24 * 1;
 
     /**
+     * @var float
+     */
+    private $diskSpaceAllowedToUse = 95.00;
+
+    /**
+     * No caching if false
+     * @var bool
+     */
+    public $cacheEnabled = true;
+
+    /**
      * @var string
      */
     private $cacheDirPath = '';
@@ -82,7 +93,7 @@ class CoffeeCache {
      */
     public function isCacheEnabled ()
     {
-        return !isset($_COOKIE['disable-cache']);
+        return !isset($_COOKIE['disable-cache']) && $this->cacheEnabled;
     }
 
 
@@ -111,6 +122,7 @@ class CoffeeCache {
         return $_SERVER['REQUEST_METHOD'] === 'GET'
             && $domainShouldBeCached
             && $this->isCacheEnabled()
+            && $this->spaceLeftOnDevice()
             && !$this->detectExcludedUrl();
     }
 
@@ -122,10 +134,12 @@ class CoffeeCache {
     {
         if ($this->isCacheAble()) {
 
-            if (file_exists($this->cacheDirPath.$this->cachedFilename)
-                && filemtime($this->cacheDirPath.$this->cachedFilename) + $this->cacheTime > time()) {
+            $directoryName = substr($this->cachedFilename, 0 ,4);
+
+            if (file_exists($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename)
+                && filemtime($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename) + $this->cacheTime > time()) {
                 header('coffee-cache: 1');
-                echo file_get_contents($this->cacheDirPath.$this->cachedFilename);
+                echo file_get_contents($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename);
                 exit;
             } else {
                 ob_start();
@@ -141,12 +155,18 @@ class CoffeeCache {
     {
         if ($this->isCacheAble() && $this->detectStatusCode()) {
 
+            $directoryName = substr($this->cachedFilename, 0 ,4);
+
+            if (!is_dir($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName)) {
+                mkdir($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName);
+            }
+
             try {
-                file_put_contents($this->cacheDirPath.$this->cachedFilename, ob_get_contents());
+                file_put_contents($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename, ob_get_contents());
             } catch (Exception $exception) {
                 //log this later
-                if (file_exists($this->cacheDirPath.$this->cachedFilename)) {
-                    unlink($this->cacheDirPath.$this->cachedFilename);
+                if (file_exists($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename)) {
+                    unlink($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename);
                 }
             }
 
@@ -155,6 +175,15 @@ class CoffeeCache {
         }
     }
 
+
+    /**
+     * Check if there is space left on the device for caching
+     * @return bool
+     */
+    private function spaceLeftOnDevice ()
+    {
+        return (disk_free_space("/") / disk_total_space("/"))  * 100 <= $this->diskSpaceAllowedToUse;
+    }
 
     /**
      * @return bool

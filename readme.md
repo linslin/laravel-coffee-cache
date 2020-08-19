@@ -207,6 +207,11 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.8.0
+- Added `$coffeeCache->cacheEnabled` flag to disable the whole caching via software switch. Default is `true`.
+- Added `$coffeeCache->diskSpaceAllowedToUse` disk space percentage used in float on which coffeeCache will stop writing cache files. Default is `95.00`.
+- Added folder handling for cache files.
+
 ### 1.7.2
 - Fixed writing empty files on file system. 
 
