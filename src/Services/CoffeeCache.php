@@ -3,6 +3,7 @@
 namespace linslin\CoffeeCache\Services;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
 
 /**
  * Class ViewHelpers
@@ -17,7 +18,8 @@ class CoffeeCache
      */
     public function clearCacheFile (string $routePath)
     {
-        $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.sha1($routePath);
+        $directory = substr($routePath, 0, 4);
+        $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.sha1($routePath);
 
         if (file_exists($cacheFilePath) && !is_dir($cacheFilePath)) {
             unlink($cacheFilePath);
@@ -32,14 +34,20 @@ class CoffeeCache
     {
         $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR;
 
-        if (is_dir($cacheFilePath)) {
-            $files = glob($cacheFilePath.'*');
-            foreach($files as $file){
-                if(is_file($file) && !strpos($file, '.gitignore')) {
-                    unlink($file);
+        foreach (File::directories($cacheFilePath) as $parentFolderName) {
+
+            $subCacheFilePath = $cacheFilePath.$parentFolderName.DIRECTORY_SEPARATOR;
+
+            if (is_dir($subCacheFilePath.)) {
+                $files = glob($subCacheFilePath.'*');
+                foreach($files as $file){
+                    if(is_file($file) && !strpos($file, '.gitignore')) {
+                        unlink($file);
+                    }
                 }
             }
         }
+
     }
 
 
@@ -49,7 +57,8 @@ class CoffeeCache
      */
     public function cacheFileExists (string $routePath)
     {
-        $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.sha1($routePath);
+        $directory = substr($routePath, 0, 4);
+        $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.sha1($routePath);
 
         return file_exists($cacheFilePath) && !is_dir($cacheFilePath);
     }
@@ -62,7 +71,8 @@ class CoffeeCache
      */
     public function getCacheFileCreatedDate (string $routePath) {
 
-        $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.sha1($routePath);
+        $directory = substr($routePath, 0, 4);
+        $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.sha1($routePath);
 
         if ($this->cacheFileExists($routePath)) {
             return new Carbon(filemtime($cacheFilePath));
