@@ -38,7 +38,7 @@ class CoffeeCache
 
             $subCacheFilePath = $cacheFilePath.$parentFolderName.DIRECTORY_SEPARATOR;
 
-            if (is_dir($subCacheFilePath.)) {
+            if (is_dir($subCacheFilePath)) {
                 $files = glob($subCacheFilePath.'*');
                 foreach($files as $file){
                     if(is_file($file) && !strpos($file, '.gitignore')) {
