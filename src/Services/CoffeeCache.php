@@ -2,7 +2,8 @@
 
 namespace linslin\CoffeeCache\Services;
 
-use Carbon\Carbon;
+use Carbon\Carbon
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -18,11 +19,15 @@ class CoffeeCache
      */
     public function clearCacheFile (string $routePath)
     {
-        $directory = substr($routePath, 0, 4);
-        $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.sha1($routePath);
+        $directoryPath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.substr(sha1($routePath), 0, 4).DIRECTORY_SEPARATOR;
+        $cacheFilePath = $directoryPath.sha1($routePath);
 
         if (file_exists($cacheFilePath) && !is_dir($cacheFilePath)) {
             unlink($cacheFilePath);
+
+            if ($this->isEmptyDir($directoryPath)) {
+                rmdir($directoryPath);
+            }
         }
     }
 
@@ -36,7 +41,7 @@ class CoffeeCache
 
         foreach (File::directories($cacheFilePath) as $parentFolderName) {
 
-            $subCacheFilePath = $cacheFilePath.$parentFolderName.DIRECTORY_SEPARATOR;
+            $subCacheFilePath = $parentFolderName.DIRECTORY_SEPARATOR;
 
             if (is_dir($subCacheFilePath)) {
                 $files = glob($subCacheFilePath.'*');
@@ -46,6 +51,9 @@ class CoffeeCache
                     }
                 }
             }
+
+            //remove dir
+            rmdir($subCacheFilePath);
         }
 
     }
@@ -57,7 +65,7 @@ class CoffeeCache
      */
     public function cacheFileExists (string $routePath)
     {
-        $directory = substr($routePath, 0, 4);
+        $directory = substr(sha1($routePath), 0, 4);
         $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.sha1($routePath);
 
         return file_exists($cacheFilePath) && !is_dir($cacheFilePath);
@@ -71,7 +79,7 @@ class CoffeeCache
      */
     public function getCacheFileCreatedDate (string $routePath) {
 
-        $directory = substr($routePath, 0, 4);
+        $directory = substr(sha1($routePath), 0, 4);
         $cacheFilePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.sha1($routePath);
 
         if ($this->cacheFileExists($routePath)) {
@@ -79,5 +87,16 @@ class CoffeeCache
         }
 
         return false;
+    }
+
+
+    /**
+     * @param string $directoryPath
+     * @return bool
+     */
+    private function isEmptyDir (string $directoryPath)
+    {
+        $FileSystem = new Filesystem();
+        return empty($FileSystem->files($directoryPath));
     }
 }

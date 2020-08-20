@@ -207,6 +207,10 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.8.2
+- Ensured that `spaceLeftOnDevice()` using the route volume to measure space left on the device. 
+- Clear or delete cache functions will now also delete empty cache directories. 
+
 ### 1.8.1
 - Fixed facade functions
 
