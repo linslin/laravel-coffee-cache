@@ -2,7 +2,7 @@
 
 namespace linslin\CoffeeCache\Services;
 
-use Carbon\Carbon
+use Carbon\Carbon;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
 
