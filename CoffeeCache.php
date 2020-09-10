@@ -36,6 +36,11 @@ class CoffeeCache {
     public $cacheEnabled = true;
 
     /**
+     * Minify cache file
+     */
+    public $minifyCacheFile = false;
+
+    /**
      * @var string
      */
     private $cacheDirPath = '';
@@ -162,7 +167,10 @@ class CoffeeCache {
             }
 
             try {
-                file_put_contents($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename, ob_get_contents());
+                file_put_contents(
+                    $this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename,
+                    $this->minifyCacheFile(ob_get_contents())
+                );
             } catch (Exception $exception) {
                 //log this later
                 if (file_exists($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename)) {
@@ -173,6 +181,32 @@ class CoffeeCache {
             ob_end_clean();
             $this->handle();
         }
+    }
+
+
+    /**
+     * @param string $cacheFileData
+     * @return string
+     */
+    private function minifyCacheFile (string $cacheFileData)
+    {
+        if ($this->minifyCacheFile) {
+            $cacheFileData = preg_replace([
+                '/\>[^\S ]+/s',     // strip whitespaces after tags, except space
+                '/[^\S ]+\</s',     // strip whitespaces before tags, except space
+                '/(\s)+/s',         // shorten multiple whitespace sequences
+                '/<!--(.|\s)*?-->/' // Remove HTML comments
+            ], [
+                '>',
+                '<',
+                '\\1',
+                ''
+            ],
+                $cacheFileData
+            );
+        }
+
+        return $cacheFileData;
     }
 
 

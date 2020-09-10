@@ -69,6 +69,11 @@ URL patterns of URLs which should not be cache. This example will exclude URLS w
         '/admin',
     ]; 
     
+#### Enable minify cache data [optional]
+Strip whitespaces after tags, except space. Strip whitespaces before tags, except space. Shorten multiple whitespace sequences. Remove HTML comments
+
+    $coffeeCache->minifyCacheFile = true;
+    
 ## Facade API Documentation
 
 ### Delete all cache files
@@ -126,6 +131,7 @@ E.g. inside a controller - example:
     
     $coffeeCache = new CoffeeCache(__DIR__);
     $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
+    $coffeeCache->minifyCacheFile = true;
     $coffeeCache->enabledHosts = [
         'www.production.com',
         'subdomain.production.com',
@@ -167,6 +173,7 @@ E.g. inside a controller - example:
     
     $coffeeCache = new CoffeeCache(__DIR__);
     $coffeeCache->cacheTime = 60 * 60 * 24 * 1; //Default is one day. 60 * 60 * 24 * 1 = 1 day
+    $coffeeCache->minifyCacheFile = true;
     $coffeeCache->enabledHosts = [
       'www.production.com',
       'subdomain.production.com',
@@ -206,6 +213,9 @@ E.g. inside a controller - example:
      
 
 ## Changelog
+
+### 1.9.0
+- Added minify option for cache files
 
 ### 1.8.3
 - Syntax fix
