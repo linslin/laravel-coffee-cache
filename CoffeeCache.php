@@ -41,6 +41,16 @@ class CoffeeCache {
     public $minifyCacheFile = false;
 
     /**
+     * Ignore file endings from caching
+     */
+    public $minifyIgnoreContentTypes = [
+        'image/png',
+        'image/gif',
+        'image/jpg',
+        'image/jpeg',
+    ];
+
+    /**
      * @var string
      */
     private $cacheDirPath = '';
@@ -185,12 +195,26 @@ class CoffeeCache {
 
 
     /**
+     * @return bool
+     */
+    private function minifyDetectContentTypeToIgnore ()
+    {
+        if (isset($_SERVER['CONTENT_TYPE'])) {
+            return !in_array(strtolower($_SERVER['CONTENT_TYPE']), $this->minifyIgnoreContentTypes);
+        }
+
+        return true;
+    }
+
+
+    /**
      * @param string $cacheFileData
      * @return string
      */
     private function minifyCacheFile (string $cacheFileData)
     {
-        if ($this->minifyCacheFile) {
+
+        if ($this->minifyCacheFile && !$this->minifyDetectContentTypeToIgnore()) {
             $cacheFileData = preg_replace([
                 '/\>[^\S ]+/s',     // strip whitespaces after tags, except space
                 '/[^\S ]+\</s',     // strip whitespaces before tags, except space

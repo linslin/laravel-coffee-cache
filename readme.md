@@ -74,6 +74,16 @@ Strip whitespaces after tags, except space. Strip whitespaces before tags, excep
 
     $coffeeCache->minifyCacheFile = true;
     
+#### Filter content types from being minified. [optional]
+Response content types which will be ignored and not minified. 
+
+    $coffeeCache->minifyIgnoreContentTypes = [
+        'image/png',
+        'image/gif',
+        'image/jpg',
+        'image/jpeg',
+    ];
+    
 ## Facade API Documentation
 
 ### Delete all cache files
@@ -213,6 +223,9 @@ E.g. inside a controller - example:
      
 
 ## Changelog
+
+### 1.10.0
+- Added option for minify to ignore special content types from being minified.
 
 ### 1.9.0
 - Added minify option for cache files
