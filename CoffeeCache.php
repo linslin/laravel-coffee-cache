@@ -51,6 +51,23 @@ class CoffeeCache {
     ];
 
     /**
+     * Cache drive, "file" or "redis".
+     * @var bool
+     */
+    public $cacheDriver = 'file';
+
+    /**
+     * Cache drive, "file" or "redis".
+     * @var bool
+     */
+    public $redisConnection = [
+        'host' => 'localhost',
+        'port' => 5000,
+        'password' => '',
+        'timeout' => 0.5
+    ];
+
+    /**
      * @var string
      */
     private $cacheDirPath = '';
@@ -84,6 +101,11 @@ class CoffeeCache {
      */
     public $excludeUrls = [];
 
+    /**
+     * The current host
+     */
+    private $host = '';
+
 
     // ################################################ Class methods // ###############################################
 
@@ -96,6 +118,7 @@ class CoffeeCache {
     public function __construct($publicDir)
     {
         //Init
+        $this->host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
         $this->cachedFilename = sha1($_SERVER['REQUEST_URI']);
         $this->cacheDirPath = $publicDir.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
             .'storage'.DIRECTORY_SEPARATOR
@@ -121,7 +144,7 @@ class CoffeeCache {
         $domainShouldBeCached = false;
 
         if (sizeof($this->enabledHosts) > 0) {
-            
+
             $host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
 
             foreach ($this->enabledHosts as $cachedHostName) {
@@ -148,17 +171,7 @@ class CoffeeCache {
     public function handle ()
     {
         if ($this->isCacheAble()) {
-
-            $directoryName = substr($this->cachedFilename, 0 ,4);
-
-            if (file_exists($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename)
-                && filemtime($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename) + $this->cacheTime > time()) {
-                header('coffee-cache: 1');
-                echo file_get_contents($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename);
-                exit;
-            } else {
-                ob_start();
-            }
+            $this->getCachedContent();;
         }
     }
 
@@ -168,25 +181,112 @@ class CoffeeCache {
      */
     public function finalize ()
     {
+        $this->setCachedContent();
+    }
+
+
+    /**
+     * Get cached content
+     */
+    private function getCachedContent ()
+    {
+
+        switch ($this->cacheDriver) {
+
+            case 'file':
+
+                $directoryName = substr($this->cachedFilename, 0 ,4);
+
+                if (file_exists($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename)
+                    && filemtime($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename) + $this->cacheTime > time()) {
+                    header('coffee-cache-f: 1');
+                    echo file_get_contents($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename);
+                    exit;
+                } else {
+                    ob_start();
+                }
+                break;
+
+            case 'redis':
+
+
+                try {
+
+                    $redisClient = new Redis();
+                    $redisClient->connect(
+                        $this->redisConnection['host'],
+                        $this->redisConnection['port'],
+                        $this->redisConnection['timeout']
+                    );
+                    $redisClient->auth($this->redisConnection['password']);
+
+                    if ($redisClient->exists($this->host.$this->cachedFilename)) {
+                        header('coffee-cache-r: 1');
+                        echo $redisClient->get($this->host.$this->cachedFilename);
+                        exit;
+                    } else {
+                        ob_start();
+                    }
+
+                } catch (Exception $e) {}
+                break;
+        }
+    }
+
+    /**
+     * Set cached content
+     */
+    private function setCachedContent ()
+    {
         if ($this->isCacheAble() && $this->detectStatusCode()) {
 
-            $directoryName = substr($this->cachedFilename, 0 ,4);
+            switch ($this->cacheDriver) {
 
-            if (!is_dir($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName)) {
-                mkdir($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName);
+                case 'file':
+
+                    $directoryName = substr($this->cachedFilename, 0 ,4);
+
+                    if (!is_dir($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName)) {
+                        mkdir($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName);
+                    }
+
+                    try {
+
+                        //write cache file
+                        file_put_contents(
+                            $this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename,
+                            $this->minifyCacheFile(ob_get_contents())
+                        );
+                    } catch (Exception $exception) {
+                        //log this later
+                        if (file_exists($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName)) {
+                            unlink($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName);
+                        }
+                    }
+
+                    break;
+
+                case 'redis':
+                    try {
+                        $redisClient = new Redis();
+                        $redisClient->connect(
+                            $this->redisConnection['host'],
+                            $this->redisConnection['port'],
+                            $this->redisConnection['timeout']
+                        );
+                        $redisClient->auth($this->redisConnection['password']);
+                        $redisClient->setex(
+                            $this->host.$this->cachedFilename,
+                            $this->cacheTime,
+                            $this->minifyCacheFile(ob_get_contents())
+                        );
+
+                    } catch (Exception $e) {
+                    }
+
+                    break;
             }
 
-            try {
-                file_put_contents(
-                    $this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename,
-                    $this->minifyCacheFile(ob_get_contents())
-                );
-            } catch (Exception $exception) {
-                //log this later
-                if (file_exists($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename)) {
-                    unlink($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename);
-                }
-            }
 
             ob_end_clean();
             $this->handle();
