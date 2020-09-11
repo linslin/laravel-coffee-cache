@@ -53,7 +53,21 @@ Matching hosts which should be cached. Default: Cache all domains
         'subdomain.production.com',
     ]; 
     
-        
+#### Enable / disable the whole cache [optional|default:true]
+Flag for easy disabling the cache.
+
+    $coffeeCache->cacheEnabled = true;   
+    
+#### Configure the cache driver (file, redis) [optional|default:'file'|'redis']
+
+    $coffeeCache->cacheDriver = 'redis';
+    $coffeeCache->redisConnection = [
+        'host' => 'localhost',
+        'port' => 6000,
+        'password' => '',
+        'timeout' => 0.5
+    ];
+
 #### Configure HTTP-Status codes which should be cached [optional]
 List of HTTP-Status codes which should be cached. Default: Cache "200" only. 
 
@@ -224,6 +238,10 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.11.0
+- Added "redis" driver. CoffeeCache now works with 'file' and 'redis' drivers. 
+- Added a "cacheEnabled" to easy enable and disable coffeeCache. 
+ 
 ### 1.10.0
 - Added option for minify to ignore special content types from being minified.
 
