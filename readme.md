@@ -178,6 +178,7 @@ E.g. inside a controller - example:
     
     if ($coffeeCache->isCacheAble()) {
         $coffeeCache->httpStatusCode = $response->status();
+        $coffeeCache->contentType = $response->headers->get('content-type');
         $response->sendHeaders();
         echo $response->content();
     } else {
@@ -223,6 +224,7 @@ E.g. inside a controller - example:
     
     if ($coffeeCache->isCacheAble()) {
         $coffeeCache->httpStatusCode = $response->status();
+        $coffeeCache->contentType = $response->headers->get('content-type');
         $response->sendHeaders();
         echo $response->content();
     } else {
@@ -237,6 +239,9 @@ E.g. inside a controller - example:
      
 
 ## Changelog
+
+### 1.11.1
+- Fixed content type ignore for minify.
 
 ### 1.11.0
 - Added "redis" driver. CoffeeCache now works with 'file' and 'redis' drivers. 

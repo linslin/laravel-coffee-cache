@@ -6,6 +6,13 @@
  * @property int $cacheTime
  * @property string $cacheDirPath
  * @property string $cachedFilename
+ * @property string $cacheDriver
+ * @property string $httpStatusCode
+ * @property string $contentType
+ * @property boolean $cacheEnabled
+ * @property boolean $minifyCacheFile
+ * @property array $minifyIgnoreContentTypes
+ * @property array $redisConnection
  */
 class CoffeeCache {
 
@@ -97,6 +104,11 @@ class CoffeeCache {
     public $httpStatusCode = null;
 
     /**
+     * @var null|int
+     */
+    public $contentType = null;
+
+    /**
      * @var string[]
      */
     public $excludeUrls = [];
@@ -117,6 +129,7 @@ class CoffeeCache {
      */
     public function __construct($publicDir)
     {
+
         //Init
         $this->host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
         $this->cachedFilename = sha1($_SERVER['REQUEST_URI']);
@@ -299,11 +312,11 @@ class CoffeeCache {
      */
     private function minifyDetectContentTypeToIgnore ()
     {
-        if (isset($_SERVER['CONTENT_TYPE'])) {
-            return !in_array(strtolower($_SERVER['CONTENT_TYPE']), $this->minifyIgnoreContentTypes);
+        if ($this->contentType !== null) {
+            return in_array(mb_strtolower($this->contentType), $this->minifyIgnoreContentTypes);
         }
 
-        return true;
+        return false;
     }
 
 
