@@ -20,7 +20,16 @@ class CoffeeCache
      */
     private function getHost ()
     {
-        return isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
+        //Init
+        $host = '';
+
+        if ($_SERVER['HTTP_X_FORWARDED_HOST']) {
+            $host = $_SERVER['HTTP_X_FORWARDED_HOST'];
+        } else if (isset($_SERVER['SERVER_NAME'])) {
+            $host = $_SERVER['SERVER_NAME'];
+        }
+
+        return $host;
     }
 
     /**
