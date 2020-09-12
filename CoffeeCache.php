@@ -9,12 +9,15 @@
  * @property string $cacheDriver
  * @property string $httpStatusCode
  * @property string $contentType
+ * @property string $host
  * @property boolean $cacheEnabled
  * @property boolean $minifyCacheFile
+ * @property boolean $cookieHandledCacheEnabled
  * @property array $minifyIgnoreContentTypes
  * @property array $redisConnection
  */
-class CoffeeCache {
+class CoffeeCache
+{
 
 
     // ############################################### Class variables // ##############################################
@@ -109,6 +112,11 @@ class CoffeeCache {
     public $contentType = null;
 
     /**
+     * @var boolean
+     */
+    public $cookieHandledCacheEnabled = false;
+
+    /**
      * @var string[]
      */
     public $excludeUrls = [];
@@ -132,26 +140,39 @@ class CoffeeCache {
 
         //Init
         $this->host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
-        $this->cachedFilename = sha1($_SERVER['REQUEST_URI']);
-        $this->cacheDirPath = $publicDir.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
-            .'storage'.DIRECTORY_SEPARATOR
-            .'coffeeCache'.DIRECTORY_SEPARATOR;
+        $this->cachedFilename = sha1($this->host.$_SERVER['REQUEST_URI']);
+        $this->cacheDirPath = $publicDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
+            . 'storage' . DIRECTORY_SEPARATOR
+            . 'coffeeCache' . DIRECTORY_SEPARATOR;
     }
 
 
     /**
      * @return bool
      */
-    public function isCacheEnabled ()
+    public function isCacheEnabled()
     {
-        return !isset($_COOKIE['disable-cache']) && $this->cacheEnabled;
+        //init
+        $cookieHandledCache = true;
+
+        if ($this->cookieHandledCacheEnabled) {
+            if (isset($_COOKIE['cached']) && $_COOKIE['cached'] === '1') {
+                $cookieHandledCache = true;
+            } else {
+                $cookieHandledCache = false;
+            }
+        }
+
+        return !isset($_COOKIE['disable-cache'])
+            && $this->cacheEnabled
+            && $cookieHandledCache;
     }
 
 
     /**
      * @return bool
      */
-    public function isCacheAble ()
+    public function isCacheAble()
     {
         //init
         $domainShouldBeCached = false;
@@ -181,7 +202,7 @@ class CoffeeCache {
     /**
      * Handle request for caching
      */
-    public function handle ()
+    public function handle()
     {
         if ($this->isCacheAble()) {
             $this->getCachedContent();;
@@ -192,7 +213,7 @@ class CoffeeCache {
     /**
      * Finalize cache. Write file to disk is caching is enabled
      */
-    public function finalize ()
+    public function finalize()
     {
         $this->setCachedContent();
     }
@@ -201,19 +222,19 @@ class CoffeeCache {
     /**
      * Get cached content
      */
-    private function getCachedContent ()
+    private function getCachedContent()
     {
 
         switch ($this->cacheDriver) {
 
             case 'file':
 
-                $directoryName = substr($this->cachedFilename, 0 ,4);
+                $directoryName = substr($this->cachedFilename, 0, 4);
 
-                if (file_exists($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename)
-                    && filemtime($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename) + $this->cacheTime > time()) {
+                if (file_exists($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename)
+                    && filemtime($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename) + $this->cacheTime > time()) {
                     header('coffee-cache-f: 1');
-                    echo file_get_contents($this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename);
+                    echo file_get_contents($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename);
                     exit;
                 } else {
                     ob_start();
@@ -231,17 +252,21 @@ class CoffeeCache {
                         $this->redisConnection['port'],
                         $this->redisConnection['timeout']
                     );
-                    $redisClient->auth($this->redisConnection['password']);
 
-                    if ($redisClient->exists($this->host.$this->cachedFilename)) {
+                    if (strlen($this->redisConnection['password']) !== 0) {
+                        $redisClient->auth($this->redisConnection['password']);
+                    }
+
+                    if ($redisClient->exists($this->cachedFilename)) {
                         header('coffee-cache-r: 1');
-                        echo $redisClient->get($this->host.$this->cachedFilename);
+                        echo $redisClient->get($this->cachedFilename);
                         exit;
                     } else {
                         ob_start();
                     }
 
-                } catch (Exception $e) {}
+                } catch (Exception $e) {
+                }
                 break;
         }
     }
@@ -249,7 +274,7 @@ class CoffeeCache {
     /**
      * Set cached content
      */
-    private function setCachedContent ()
+    private function setCachedContent()
     {
         if ($this->isCacheAble() && $this->detectStatusCode()) {
 
@@ -257,23 +282,23 @@ class CoffeeCache {
 
                 case 'file':
 
-                    $directoryName = substr($this->cachedFilename, 0 ,4);
+                    $directoryName = substr($this->cachedFilename, 0, 4);
 
-                    if (!is_dir($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName)) {
-                        mkdir($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName);
+                    if (!is_dir($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName)) {
+                        mkdir($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName);
                     }
 
                     try {
 
                         //write cache file
                         file_put_contents(
-                            $this->cacheDirPath.$directoryName.DIRECTORY_SEPARATOR.$this->cachedFilename,
+                            $this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename,
                             $this->minifyCacheFile(ob_get_contents())
                         );
                     } catch (Exception $exception) {
                         //log this later
-                        if (file_exists($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName)) {
-                            unlink($this->cacheDirPath.DIRECTORY_SEPARATOR.$directoryName);
+                        if (file_exists($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName)) {
+                            unlink($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName);
                         }
                     }
 
@@ -287,9 +312,13 @@ class CoffeeCache {
                             $this->redisConnection['port'],
                             $this->redisConnection['timeout']
                         );
-                        $redisClient->auth($this->redisConnection['password']);
+
+                        if (strlen($this->redisConnection['password']) !== 0) {
+                            $redisClient->auth($this->redisConnection['password']);
+                        }
+
                         $redisClient->setex(
-                            $this->host.$this->cachedFilename,
+                            $this->cachedFilename,
                             $this->cacheTime,
                             $this->minifyCacheFile(ob_get_contents())
                         );
@@ -310,7 +339,7 @@ class CoffeeCache {
     /**
      * @return bool
      */
-    private function minifyDetectContentTypeToIgnore ()
+    private function minifyDetectContentTypeToIgnore()
     {
         if ($this->contentType !== null) {
             return in_array(mb_strtolower($this->contentType), $this->minifyIgnoreContentTypes);
@@ -324,7 +353,7 @@ class CoffeeCache {
      * @param string $cacheFileData
      * @return string
      */
-    private function minifyCacheFile (string $cacheFileData)
+    private function minifyCacheFile(string $cacheFileData)
     {
 
         if ($this->minifyCacheFile && !$this->minifyDetectContentTypeToIgnore()) {
@@ -351,15 +380,15 @@ class CoffeeCache {
      * Check if there is space left on the device for caching
      * @return bool
      */
-    private function spaceLeftOnDevice ()
+    private function spaceLeftOnDevice()
     {
-        return (disk_free_space("/") / disk_total_space("/"))  * 100 <= $this->diskSpaceAllowedToUse;
+        return (disk_free_space("/") / disk_total_space("/")) * 100 <= $this->diskSpaceAllowedToUse;
     }
 
     /**
      * @return bool
      */
-    private function detectStatusCode ()
+    private function detectStatusCode()
     {
         return in_array((string)$this->httpStatusCode, $this->enabledHttpStatusCodes);
     }
@@ -368,7 +397,7 @@ class CoffeeCache {
     /**
      * @return bool
      */
-    private function detectExcludedUrl ()
+    private function detectExcludedUrl()
     {
         if (sizeof($this->excludeUrls) > 0) {
             foreach ($this->excludeUrls as $excludeUrl) {

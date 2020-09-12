@@ -37,6 +37,26 @@ If you want to use the facade to handle the cache files, add
 this to your facades in `config/app.php` in the `alias` array:
 
     'CoffeeCache' => linslin\CoffeeCache\Facades\CoffeeCache::class,
+    
+## Example `./config/coffeeCache.php` config file
+
+    return [
+    
+        /**
+         * Cache driver: 'file' or 'redis'
+         */
+        'driver' => 'file',
+    
+        /*
+         * Redis connection
+         */
+        'redis' => [
+            'host' => 'localhost',
+            'port' => 6000,
+            'password' => '', //leave empty if no password is given
+            'timeout' => 0.5
+        ],
+    ];
 
 ## API Documentation 
 
@@ -88,6 +108,13 @@ Strip whitespaces after tags, except space. Strip whitespaces before tags, excep
 
     $coffeeCache->minifyCacheFile = true;
     
+#### Enable cookie handled cache [optional]
+The cache only will work if a cookie named "cached" is available and hold the value "1". This is for handling user sessions
+while running coffeeCache. It allows you to enable / disable cache for logged in users. Create a cookie with cached=1 if 
+a user is not logged in. Create a cookie with cached=0 if a user is logged in.
+
+    $coffeeCache->cookieHandledCacheEnabled = true;
+    
 #### Filter content types from being minified. [optional]
 Response content types which will be ignored and not minified. 
 
@@ -106,7 +133,15 @@ Response content types which will be ignored and not minified.
 
 ### Manually delete cache files 
 
-    CoffeeCache::clearCacheFile(string $route);
+    CoffeeCache::clearCacheFile(route('route.name', [], false));
+    
+### Check if cache file exist 
+
+    CoffeeCache::cacheFileExists(route('route.name', [], false));
+    
+### Get creation date (file driver only)
+
+    CoffeeCache::getCacheFileCreatedDate(route('route.name', [], false));
        
 
 #### Example: Manually delete cache a specific file
@@ -236,9 +271,14 @@ E.g. inside a controller - example:
     $coffeeCache->finalize();
     ```
 - laravel-coffee-cache should now start to cache your GET Requests and creating cache files in `app/storage/coffeeCache`.
+- Create a config file in `./config/coffeeCache.php`. An example config can be found in this repository.
      
 
 ## Changelog
+
+### 1.12.0
+- Added a file and redis drivers to facades. 
+- Added option `$coffeeCache->cookieHandledCacheEnabled` to handle the cache via cookies. This can be used to disable the cache for user sessions.
 
 ### 1.11.1
 - Fixed content type ignore for minify.
