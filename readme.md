@@ -276,6 +276,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.12.2
+- Now: Added isset validation on some global vars.
+
 ### 1.12.1
 - Added isset validation on some global vars.
 

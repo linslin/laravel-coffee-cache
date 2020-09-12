@@ -23,7 +23,7 @@ class CoffeeCache
         //Init
         $host = '';
 
-        if ($_SERVER['HTTP_X_FORWARDED_HOST']) {
+        if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
             $host = $_SERVER['HTTP_X_FORWARDED_HOST'];
         } else if (isset($_SERVER['SERVER_NAME'])) {
             $host = $_SERVER['SERVER_NAME'];
