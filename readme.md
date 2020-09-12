@@ -277,7 +277,7 @@ E.g. inside a controller - example:
 ## Changelog
 
 ### 1.12.0
-- Added a file and redis drivers to facades. 
+- Added a file and redis driver to laravel facade.
 - Added option `$coffeeCache->cookieHandledCacheEnabled` to handle the cache via cookies. This can be used to disable the cache for user sessions.
 
 ### 1.11.1
