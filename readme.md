@@ -276,6 +276,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.13.1
+- Facade fix for mobile/desktop split.
+
 ### 1.13.0
 - Added mobile / desktop detection and split for cached files.
 - 0 byte / empty responses will be not cached anymore. An empty response body will be ignored. 

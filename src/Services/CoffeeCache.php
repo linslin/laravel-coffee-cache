@@ -65,7 +65,8 @@ class CoffeeCache
      */
     public function clearCacheFile (string $routePath)
     {
-        return $this->getDriver()->clearCacheFile(sha1($this->getHost().$routePath));
+        return $this->getDriver()->clearCacheFile(sha1($this->getHost().$routePath).'-desktop');
+        return $this->getDriver()->clearCacheFile(sha1($this->getHost().$routePath).'-mobile');
     }
 
 
@@ -82,19 +83,27 @@ class CoffeeCache
      * @param string $routePath
      * @return bool
      */
-    public function cacheFileExists (string $routePath)
+
+    /**
+     * @param string $routePath
+     * @param string $type mobile|desktop
+     * @return bool
+     * @throws \Exception
+     */
+    public function cacheFileExists (string $routePath, string $type)
     {
-        return $this->getDriver()->cacheFileExists(sha1($this->getHost().$routePath));
+        return $this->getDriver()->cacheFileExists(sha1($this->getHost().$routePath).'-'.$type);
     }
 
 
     /**
      * @param string $routePath
+     * @param string $type mobile|desktop
      * @return bool|Carbon
      * @throws \Exception
      */
-    public function getCacheFileCreatedDate (string $routePath) {
+    public function getCacheFileCreatedDate (string $routePath, string $type) {
 
-        return $this->getDriver()->getCacheFileCreatedDate(sha1($this->getHost().$routePath));
+        return $this->getDriver()->getCacheFileCreatedDate(sha1($this->getHost().$routePath).'-'.$type);
     }
 }
