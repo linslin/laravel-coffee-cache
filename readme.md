@@ -72,6 +72,14 @@ Matching hosts which should be cached. Default: Cache all domains
         'www.production.com',
         'subdomain.production.com',
     ]; 
+
+#### Configure enabled hosts with sessions for caching [optional]
+Matching hosts which should be cached only if a cookie cached=1 is set. Default: Cache all domains
+
+    $coffeeCache->enabledCacheHostsWithSession = [
+        'www.production.com',
+        'subdomain.production.com',
+    ]; 
     
 #### Enable / disable the whole cache [optional|default:true]
 Flag for easy disabling the cache.

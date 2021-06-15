@@ -94,6 +94,11 @@ class CoffeeCache
     public $enabledHosts = [];
 
     /**
+     * Enabled hosts list which should be cached with session if a cookie cached=1 is set.
+     */
+    public $enabledCacheHostsWithSession = [];
+
+    /**
      * List of enabled http status codes, default is 200 OK.
      * @var string[]
      */
@@ -175,11 +180,10 @@ class CoffeeCache
     {
         //init
         $domainShouldBeCached = false;
+        $domainShouldBeCachedWithSession = false;
+        $host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
 
         if (sizeof($this->enabledHosts) > 0) {
-
-            $host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
-
             foreach ($this->enabledHosts as $cachedHostName) {
                 if (strpos($host, $cachedHostName) !== false) {
                     $domainShouldBeCached = true;
@@ -190,8 +194,22 @@ class CoffeeCache
             $domainShouldBeCached = true;
         }
 
-        return $_SERVER['REQUEST_METHOD'] === 'GET'
-            && $domainShouldBeCached
+        foreach ($this->enabledCacheHostsWithSession as $cachedHostNameWithSession) {
+            if (strpos($this->host, $cachedHostNameWithSession) !== false) {
+                $domainShouldBeCachedWithSession = true;
+                break;
+            }
+        }
+
+        $shouldBeCached = false;
+        if ($domainShouldBeCachedWithSession) {
+            $shouldBeCached = isset($_COOKIE['cached']) && $_COOKIE['cached'] === '1';
+        } else {
+            $shouldBeCached = $domainShouldBeCached;
+        }
+
+        return  $shouldBeCached
+            && $_SERVER['REQUEST_METHOD'] === 'GET'
             && $this->isCacheEnabled()
             && $this->spaceLeftOnDevice()
             && !$this->detectExcludedUrl();
