@@ -80,6 +80,15 @@ Matching hosts which should be cached only if a cookie cached=1 is set. Default:
         'www.production.com',
         'subdomain.production.com',
     ]; 
+
+#### Configure query parameters to exclude from request uri [optional]
+Matching query parameters are excluded from the request uri.
+A request uri with an excluded query param is treated like if the parameter is not set.
+Default: no query parameter is exclude
+
+    $coffeeCache->excludeQueryParam  = [
+        'aQueryParameter',
+    ]; 
     
 #### Enable / disable the whole cache [optional|default:true]
 Flag for easy disabling the cache.

@@ -99,6 +99,11 @@ class CoffeeCache
     public $enabledCacheHostsWithSession = [];
 
     /**
+     * Query parameters which should be excluded from the request uri for caching.
+     */
+    public $excludeQueryParam = [];
+
+    /**
      * List of enabled http status codes, default is 200 OK.
      * @var string[]
      */
@@ -144,7 +149,7 @@ class CoffeeCache
     {
         //Init
         $this->host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
-        $this->cachedFilename = sha1($this->host.$_SERVER['REQUEST_URI']).'-'.$this->getAgent();
+        $this->cachedFilename = sha1($this->host.$this->getRequestUri()).'-'.$this->getAgent();
         $this->cacheDirPath = $publicDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
             . 'storage' . DIRECTORY_SEPARATOR
             . 'coffeeCache' . DIRECTORY_SEPARATOR;
@@ -421,7 +426,7 @@ class CoffeeCache
     {
         if (sizeof($this->excludeUrls) > 0) {
             foreach ($this->excludeUrls as $excludeUrl) {
-                if (strpos($_SERVER['REQUEST_URI'], $excludeUrl) !== false) {
+                if (strpos($this->getRequestUri(), $excludeUrl) !== false) {
                     return true;
                 }
             }
@@ -441,6 +446,34 @@ class CoffeeCache
         }
 
         return 'desktop';
+    }
+
+    /**
+     * @return mixed|string
+     */
+    private function getRequestUri()
+    {
+        $requestUri = $_SERVER['REQUEST_URI'];
+        $basePath = explode('?', $_SERVER['REQUEST_URI']);
+
+
+        if (strpos($_SERVER['REQUEST_URI'], '?') && sizeof($_GET) > 0) {
+
+            $params = $_GET;
+
+            foreach ($this->excludeQueryParam as $keyParam) {
+                if (isset($params[$keyParam])) {
+                    unset($params[$keyParam]);
+                }
+            }
+
+            if (sizeof($params) > 0) {
+                $requestUri = $basePath[0].'?'.http_build_query($params);
+            } else {
+                $requestUri = $basePath[0];
+            }
+        }
+        return $requestUri;
     }
 
 }
