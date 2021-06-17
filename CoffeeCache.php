@@ -94,6 +94,16 @@ class CoffeeCache
     public $enabledHosts = [];
 
     /**
+     * Enabled hosts list which should be cached with session if a cookie cached=1 is set.
+     */
+    public $enabledCacheHostsWithSession = [];
+
+    /**
+     * Query parameters which should be excluded from the request uri for caching.
+     */
+    public $excludeQueryParam = [];
+
+    /**
      * List of enabled http status codes, default is 200 OK.
      * @var string[]
      */
@@ -139,7 +149,7 @@ class CoffeeCache
     {
         //Init
         $this->host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
-        $this->cachedFilename = sha1($this->host.$_SERVER['REQUEST_URI']).'-'.$this->getAgent();
+        $this->cachedFilename = sha1($this->host.$this->getRequestUri()).'-'.$this->getAgent();
         $this->cacheDirPath = $publicDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
             . 'storage' . DIRECTORY_SEPARATOR
             . 'coffeeCache' . DIRECTORY_SEPARATOR;
@@ -175,11 +185,10 @@ class CoffeeCache
     {
         //init
         $domainShouldBeCached = false;
+        $domainShouldBeCachedWithSession = false;
+        $host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
 
         if (sizeof($this->enabledHosts) > 0) {
-
-            $host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
-
             foreach ($this->enabledHosts as $cachedHostName) {
                 if (strpos($host, $cachedHostName) !== false) {
                     $domainShouldBeCached = true;
@@ -190,8 +199,22 @@ class CoffeeCache
             $domainShouldBeCached = true;
         }
 
-        return $_SERVER['REQUEST_METHOD'] === 'GET'
-            && $domainShouldBeCached
+        foreach ($this->enabledCacheHostsWithSession as $cachedHostNameWithSession) {
+            if (strpos($this->host, $cachedHostNameWithSession) !== false) {
+                $domainShouldBeCachedWithSession = true;
+                break;
+            }
+        }
+
+        $shouldBeCached = false;
+        if ($domainShouldBeCachedWithSession) {
+            $shouldBeCached = isset($_COOKIE['cached']) && $_COOKIE['cached'] === '1';
+        } else {
+            $shouldBeCached = $domainShouldBeCached;
+        }
+
+        return  $shouldBeCached
+            && $_SERVER['REQUEST_METHOD'] === 'GET'
             && $this->isCacheEnabled()
             && $this->spaceLeftOnDevice()
             && !$this->detectExcludedUrl();
@@ -403,7 +426,7 @@ class CoffeeCache
     {
         if (sizeof($this->excludeUrls) > 0) {
             foreach ($this->excludeUrls as $excludeUrl) {
-                if (strpos($_SERVER['REQUEST_URI'], $excludeUrl) !== false) {
+                if (strpos($this->getRequestUri(), $excludeUrl) !== false) {
                     return true;
                 }
             }
@@ -423,6 +446,34 @@ class CoffeeCache
         }
 
         return 'desktop';
+    }
+
+    /**
+     * @return mixed|string
+     */
+    private function getRequestUri()
+    {
+        $requestUri = $_SERVER['REQUEST_URI'];
+        $basePath = explode('?', $_SERVER['REQUEST_URI']);
+
+
+        if (strpos($_SERVER['REQUEST_URI'], '?') && sizeof($_GET) > 0) {
+
+            $params = $_GET;
+
+            foreach ($this->excludeQueryParam as $keyParam) {
+                if (isset($params[$keyParam])) {
+                    unset($params[$keyParam]);
+                }
+            }
+
+            if (sizeof($params) > 0) {
+                $requestUri = $basePath[0].'?'.http_build_query($params);
+            } else {
+                $requestUri = $basePath[0];
+            }
+        }
+        return $requestUri;
     }
 
 }
