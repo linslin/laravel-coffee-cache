@@ -293,6 +293,10 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.14.0
+- Added `enabledCacheHostsWithSession` option.
+- Added `excludeQueryParam` option.
+ 
 ### 1.13.1
 - Facade fix for mobile/desktop split.
 
