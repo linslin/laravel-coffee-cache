@@ -298,6 +298,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.15.1
+- Fixed `spaceLeftOnDevice` permission issue.
+
 ### 1.15.0
 - Added `gzipEnabled` option.
 
