@@ -432,7 +432,7 @@ class CoffeeCache
      */
     private function spaceLeftOnDevice()
     {
-        return (disk_free_space("/") / disk_total_space("/")) * 100 <= $this->diskSpaceAllowedToUse;
+        return (disk_free_space(__dir__) / disk_total_space(__dir__)) * 100 <= $this->diskSpaceAllowedToUse;
     }
 
     /**
