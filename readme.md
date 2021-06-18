@@ -131,6 +131,11 @@ while running coffeeCache. It allows you to enable / disable cache for logged in
 a user is not logged in. Create a cookie with cached=0 if a user is logged in.
 
     $coffeeCache->cookieHandledCacheEnabled = true;
+
+#### Enable cookie handled cache [optional]
+Enable gzip compression for cache data. Default is `false`. 
+
+    $coffeeCache->gzipEnabled = true;
     
 #### Filter content types from being minified. [optional]
 Response content types which will be ignored and not minified. 
@@ -293,9 +298,13 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.15.0
+- Added `gzipEnabled` option.
+
 ### 1.14.0
 - Added `enabledCacheHostsWithSession` option.
 - Added `excludeQueryParam` option.
+- Many thanks to Marcos ([@delacruzsippel](https://github.com/delacruzsippel))
  
 ### 1.13.1
 - Facade fix for mobile/desktop split.

@@ -11,6 +11,7 @@
  * @property string $contentType
  * @property string $host
  * @property boolean $cacheEnabled
+ * @property boolean $gzipEnabled
  * @property boolean $minifyCacheFile
  * @property boolean $cookieHandledCacheEnabled
  * @property array $minifyIgnoreContentTypes
@@ -49,6 +50,12 @@ class CoffeeCache
      * Minify cache file
      */
     public $minifyCacheFile = false;
+
+    /**
+     * GZIP cache files
+     * @var bool
+     */
+    public $gzipEnabled = false;
 
     /**
      * Ignore file endings from caching
@@ -255,9 +262,17 @@ class CoffeeCache
 
                 if (file_exists($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename)
                     && filemtime($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename) + $this->cacheTime > time()) {
+
                     header('coffee-cache-f: 1');
-                    echo file_get_contents($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename);
+                    $data = file_get_contents($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename);
+
+                    if ($this->gzipEnabled) {
+                        $data = gzuncompress($data);
+                    }
+
+                    echo $data;
                     exit;
+
                 } else {
                     ob_start();
                 }
@@ -281,7 +296,13 @@ class CoffeeCache
 
                     if ($redisClient->exists($this->cachedFilename)) {
                         header('coffee-cache-r: 1');
-                        echo $redisClient->get($this->cachedFilename);
+                        $data = $redisClient->get($this->cachedFilename);
+
+                        if ($this->gzipEnabled) {
+                            $data = gzuncompress($data);
+                        }
+
+                        echo $data;
                         exit;
                     } else {
                         ob_start();
@@ -301,6 +322,10 @@ class CoffeeCache
         $cacheData = $this->minifyCacheFile(ob_get_contents());
 
         if ($this->isCacheAble() && strlen($cacheData) > 0 && $this->detectStatusCode()) {
+
+            if ($this->gzipEnabled) {
+                $cacheData = gzcompress($cacheData);
+            }
 
             switch ($this->cacheDriver) {
 
