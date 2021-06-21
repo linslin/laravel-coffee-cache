@@ -298,6 +298,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.15.2
+- Function `spaceLeftOnDevice` is now only executed if cacheDriver is set to "file".
+
 ### 1.15.1
 - Fixed `spaceLeftOnDevice` permission issue.
 
