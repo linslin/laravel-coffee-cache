@@ -59,14 +59,19 @@ class CoffeeCache
 
     }
 
+
     /**
-     * @param string $routePath // e.g. test/page without domain.
-     * @return array
+     * @param string $routePath
+     * @return bool
+     * @throws \Exception
      */
     public function clearCacheFile (string $routePath)
     {
-        return $this->getDriver()->clearCacheFile(sha1($this->getHost().$routePath).'-desktop');
-        return $this->getDriver()->clearCacheFile(sha1($this->getHost().$routePath).'-mobile');
+        // try delete cache file
+        $desktopResult = $this->getDriver()->clearCacheFile(sha1($this->getHost().$routePath).'-desktop');
+        $mobileResult = $this->getDriver()->clearCacheFile(sha1($this->getHost().$routePath).'-mobile');
+
+        return $desktopResult || $mobileResult;
     }
 
 
