@@ -263,7 +263,7 @@ class CoffeeCache
                 if (file_exists($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename)
                     && filemtime($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename) + $this->cacheTime > time()) {
 
-                    header('coffee-cache-f: 1');
+                    header('coffee-cache-'.$this->getAgent().'-file: 1');
                     $data = file_get_contents($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename);
 
                     if ($this->gzipEnabled) {
@@ -295,7 +295,7 @@ class CoffeeCache
                     }
 
                     if ($redisClient->exists($this->cachedFilename)) {
-                        header('coffee-cache-r: 1');
+                        header('coffee-cache-'.$this->getAgent().'-redis: 1');
                         $data = $redisClient->get($this->cachedFilename);
 
                         if ($this->gzipEnabled) {

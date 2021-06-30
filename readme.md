@@ -298,6 +298,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.16.0
+- Added the detected user agent into the response header state.
+
 ### 1.15.3
 - Fixed clear cache facade function for mobile cache data.
 
