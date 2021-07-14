@@ -298,6 +298,10 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.17.0
+- Fixed mobile detection for tablet devices.
+- Added out increment for expire time on redis driver. Each time a key was hit the expire will be increased by `$coffeeCache->cacheTime`. 
+
 ### 1.16.0
 - Added the detected user agent into the response header state.
 
