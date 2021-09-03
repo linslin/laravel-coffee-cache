@@ -16,9 +16,8 @@
   ],
   "require": {
     "ext-mbstring": "*",
-    "ext-zlib": "*"
-  },
-  "require-dev": {
+    "ext-zlib": "*",
+    "mobiledetect/mobiledetectlib": "^2.8"
   },
   "autoload": {
     "psr-4": {
