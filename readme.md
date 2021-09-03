@@ -298,6 +298,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.18.0
+- Added mobile detect library for detection of mobile devices
+
 ### 1.17.0
 - Fixed mobile detection for tablet devices.
 - Added out increment for expire time on redis driver. Each time a key was hit the expire will be increased by `$coffeeCache->cacheTime`. 
