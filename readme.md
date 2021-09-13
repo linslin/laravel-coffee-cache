@@ -298,6 +298,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.19.0
+- Added redis connection close
+
 ### 1.18.0
 - Added mobile detect library for detection of mobile devices
 

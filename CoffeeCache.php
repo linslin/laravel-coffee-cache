@@ -317,9 +317,16 @@ class CoffeeCache
                             $data = gzuncompress($data);
                         }
 
+                        //close redis connection
+                        $redisClient->close();
+
                         echo $data;
                         exit;
                     } else {
+
+                        //close redis connection, before ob start ;)
+                        $redisClient->close();
+
                         ob_start();
                     }
 
@@ -387,6 +394,9 @@ class CoffeeCache
                             $this->cacheTime,
                             $cacheData
                         );
+
+                        //close redis connection
+                        $redisClient->close();
 
                     } catch (Exception $e) {
                     }
@@ -497,7 +507,6 @@ class CoffeeCache
     {
         $requestUri = $_SERVER['REQUEST_URI'];
         $basePath = explode('?', $_SERVER['REQUEST_URI']);
-
 
         if (strpos($_SERVER['REQUEST_URI'], '?') && sizeof($_GET) > 0) {
 
