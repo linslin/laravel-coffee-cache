@@ -517,7 +517,7 @@ class CoffeeCache
                 '/\>[^\S ]+/s',     // strip whitespaces after tags, except space
                 '/[^\S ]+\</s',     // strip whitespaces before tags, except space
                 '/(\s)+/s',         // shorten multiple whitespace sequences
-                '/<!--(.|\s)*?-->/' // Remove HTML comments
+                '/<!--(?!noremove)(.|\s)*?-->/' // Remove HTML comments
             ], [
                 '>',
                 '<',

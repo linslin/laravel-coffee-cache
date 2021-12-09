@@ -320,6 +320,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.22.0
+- Added option for HTML comments to keep them in the minified cached file version. `<!--noremove some comment -->`.
+
 ### 1.21.2
 - Second mini fix for `globalReplacements` which will keep the markers in the template after replace.
 
