@@ -19,6 +19,7 @@ require_once __DIR__. DIRECTORY_SEPARATOR. '..' . DIRECTORY_SEPARATOR . '..' . D
  * @property boolean $cookieHandledCacheEnabled
  * @property array $minifyIgnoreContentTypes
  * @property array $redisConnection
+ * @property array $globalReplacements
  */
 class CoffeeCache
 {
@@ -137,9 +138,15 @@ class CoffeeCache
     public $cookieHandledCacheEnabled = false;
 
     /**
-     * @var string[]
+     * @var array
      */
     public $excludeUrls = [];
+
+    /**
+     * Global string replacement markers
+     * @var array
+     */
+    public $globalReplacements = [];
 
     /**
      * The current host
@@ -279,6 +286,8 @@ class CoffeeCache
                         $data = gzuncompress($data);
                     }
 
+                    $data = $this->replaceGlobalMarkers($data);
+
                     echo $data;
                     exit;
 
@@ -317,6 +326,8 @@ class CoffeeCache
                             $data = gzuncompress($data);
                         }
 
+                        $data = $this->replaceGlobalMarkers($data);
+
                         //close redis connection
                         $redisClient->close();
 
@@ -336,6 +347,33 @@ class CoffeeCache
         }
     }
 
+
+    /**
+     * @param string $data
+     * @return string
+     */
+    private function replaceGlobalMarkers ($data)
+    {
+        if (sizeof($this->globalReplacements) > 0) {
+            foreach ($this->globalReplacements as $globalReplacement) {
+                switch ($globalReplacement['type']) {
+                    case 'string':
+                        $data = str_replace($globalReplacement['marker'], $globalReplacement['value'], $data);
+                        break;
+
+                    case 'file':
+                        if (file_exists($globalReplacement['filePath'])) {
+                            $data = str_replace($globalReplacement['marker'], file_get_contents($globalReplacement['filePath']), $data);
+                        } else {
+                            $data = str_replace($globalReplacement['marker'], '', $data);
+                        }
+                        break;
+                }
+            }
+        }
+
+        return $data;
+    }
 
     /**
      * Set cached content

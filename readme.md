@@ -113,7 +113,7 @@ List of HTTP-Status codes which should be cached. Default: Cache "200" only.
       '202',
     ]; 
     
-#### Exclude URL pattern from being cached. [optional]
+#### Exclude URL patterns from being cached. [optional]
 URL patterns of URLs which should not be cache. This example will exclude URLS which have "/admin" somewhere in the URL. 
 
     $coffeeCache->excludeUrls = [
@@ -145,6 +145,23 @@ Response content types which will be ignored and not minified.
         'image/gif',
         'image/jpg',
         'image/jpeg',
+    ];
+
+#### Global replacements [optional]
+Will replace some string marker in our cached file. Which allows you to globally 
+manipulate the cache data. You can parse a string or filepath. The file contents
+will replace the marker string. 
+
+    $coffeeCache->globalReplacements = [
+        [
+            'type' => 'string',
+            'marker' => '###marker1####',
+            'value' => 'hallo welt'
+        ], [
+            'type' => 'file',
+            'marker' => '###marker2####',
+            'filePath' => __DIR__.'/../public/test.txt'
+        ]
     ];
     
 ## Facade API Documentation
@@ -297,6 +314,9 @@ E.g. inside a controller - example:
      
 
 ## Changelog
+
+### 1.20.0
+- Added `globalReplacements` option. 
 
 ### 1.19.0
 - Added redis connection close
