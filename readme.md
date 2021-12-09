@@ -320,6 +320,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.21.1
+- Mini fix for `globalReplacements` which will keep the markers in the template after replace.
+
 ### 1.21.0
 - Made `globalReplacements` markers optional work with end and start markers.
 

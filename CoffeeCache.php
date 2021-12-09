@@ -249,7 +249,7 @@ class CoffeeCache
     public function handle()
     {
         if ($this->isCacheAble()) {
-            $this->getCachedContent();;
+            $this->getCachedContent();
         }
     }
 
@@ -363,10 +363,10 @@ class CoffeeCache
 
                             $posStart = strpos($data, $globalReplacement['marker']);
                             $posEnd = strpos($data, $globalReplacement['markerEnd']);
-                            $firstPiece = mb_strcut($data, 0, $posStart);
+                            $firstPiece = mb_strcut($data, 0, $posStart + strlen($globalReplacement['marker']));
                             $secondPiece = mb_strcut(
                                 $data,
-                                $posEnd + strlen($globalReplacement['markerEnd']),
+                                $posEnd,
                                 strlen($data)
                             );
 
@@ -381,12 +381,13 @@ class CoffeeCache
 
                         if (isset($globalReplacement['markerEnd'])) {
                             if (file_exists($globalReplacement['filePath'])) {
+
                                 $posStart = strpos($data, $globalReplacement['marker']);
                                 $posEnd = strpos($data, $globalReplacement['markerEnd']);
-                                $firstPiece = mb_strcut($data, 0, $posStart);
+                                $firstPiece = mb_strcut($data, 0, $posStart + strlen($globalReplacement['marker']));
                                 $secondPiece = mb_strcut(
                                     $data,
-                                    $posEnd + strlen($globalReplacement['markerEnd']),
+                                    $posEnd,
                                     strlen($data)
                                 );
 
