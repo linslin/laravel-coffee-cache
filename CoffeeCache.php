@@ -19,7 +19,6 @@ require_once __DIR__. DIRECTORY_SEPARATOR. '..' . DIRECTORY_SEPARATOR . '..' . D
  * @property boolean $cookieHandledCacheEnabled
  * @property array $minifyIgnoreContentTypes
  * @property array $redisConnection
- * @property array $globalReplacements
  */
 class CoffeeCache
 {
@@ -357,15 +356,51 @@ class CoffeeCache
         if (sizeof($this->globalReplacements) > 0) {
             foreach ($this->globalReplacements as $globalReplacement) {
                 switch ($globalReplacement['type']) {
+
                     case 'string':
-                        $data = str_replace($globalReplacement['marker'], $globalReplacement['value'], $data);
+
+                        if (isset($globalReplacement['markerEnd'])) {
+
+                            $posStart = strpos($data, $globalReplacement['marker']);
+                            $posEnd = strpos($data, $globalReplacement['markerEnd']);
+                            $firstPiece = mb_strcut($data, 0, $posStart);
+                            $secondPiece = mb_strcut(
+                                $data,
+                                $posEnd + strlen($globalReplacement['markerEnd']),
+                                strlen($data)
+                            );
+
+                            $data = $firstPiece.$globalReplacement['value'].$secondPiece;
+                        } else {
+                            $data = str_replace($globalReplacement['marker'], $globalReplacement['value'], $data);
+                        }
+
                         break;
 
                     case 'file':
-                        if (file_exists($globalReplacement['filePath'])) {
-                            $data = str_replace($globalReplacement['marker'], file_get_contents($globalReplacement['filePath']), $data);
+
+                        if (isset($globalReplacement['markerEnd'])) {
+                            if (file_exists($globalReplacement['filePath'])) {
+                                $posStart = strpos($data, $globalReplacement['marker']);
+                                $posEnd = strpos($data, $globalReplacement['markerEnd']);
+                                $firstPiece = mb_strcut($data, 0, $posStart);
+                                $secondPiece = mb_strcut(
+                                    $data,
+                                    $posEnd + strlen($globalReplacement['markerEnd']),
+                                    strlen($data)
+                                );
+
+                                $data = $firstPiece.file_get_contents($globalReplacement['filePath']).$secondPiece;
+                            } else {
+                                $data = str_replace($globalReplacement['marker'], '', $data);
+                                $data = str_replace($globalReplacement['markerEnd'], '', $data);
+                            }
                         } else {
-                            $data = str_replace($globalReplacement['marker'], '', $data);
+                            if (file_exists($globalReplacement['filePath'])) {
+                                $data = str_replace($globalReplacement['marker'], file_get_contents($globalReplacement['filePath']), $data);
+                            } else {
+                                $data = str_replace($globalReplacement['marker'], '', $data);
+                            }
                         }
                         break;
                 }

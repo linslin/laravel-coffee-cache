@@ -161,6 +161,11 @@ will replace the marker string.
             'type' => 'file',
             'marker' => '###marker2####',
             'filePath' => __DIR__.'/../public/test.txt'
+        ], [
+            'type' => 'file',
+            'marker' => '###start_marker####',
+            'markerEnd' => '###end_marker####',
+            'filePath' => __DIR__.'/../public/test.txt'
         ]
     ];
     
@@ -314,6 +319,9 @@ E.g. inside a controller - example:
      
 
 ## Changelog
+
+### 1.21.0
+- Made `globalReplacements` markers optional work with end and start markers.
 
 ### 1.20.0
 - Added `globalReplacements` option. 
