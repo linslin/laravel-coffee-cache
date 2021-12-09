@@ -363,14 +363,17 @@ class CoffeeCache
 
                             $posStart = strpos($data, $globalReplacement['marker']);
                             $posEnd = strpos($data, $globalReplacement['markerEnd']);
-                            $firstPiece = mb_strcut($data, 0, $posStart + strlen($globalReplacement['marker']));
-                            $secondPiece = mb_strcut(
-                                $data,
-                                $posEnd,
-                                strlen($data)
-                            );
 
-                            $data = $firstPiece.$globalReplacement['value'].$secondPiece;
+                            if ($posStart !== false && $posEnd !== false) {
+                                $firstPiece = mb_strcut($data, 0, $posStart + strlen($globalReplacement['marker']));
+                                $secondPiece = mb_strcut(
+                                    $data,
+                                    $posEnd,
+                                    strlen($data)
+                                );
+
+                                $data = $firstPiece.$globalReplacement['value'].$secondPiece;
+                            }
                         } else {
                             $data = str_replace($globalReplacement['marker'], $globalReplacement['value'], $data);
                         }
@@ -384,14 +387,17 @@ class CoffeeCache
 
                                 $posStart = strpos($data, $globalReplacement['marker']);
                                 $posEnd = strpos($data, $globalReplacement['markerEnd']);
-                                $firstPiece = mb_strcut($data, 0, $posStart + strlen($globalReplacement['marker']));
-                                $secondPiece = mb_strcut(
-                                    $data,
-                                    $posEnd,
-                                    strlen($data)
-                                );
 
-                                $data = $firstPiece.file_get_contents($globalReplacement['filePath']).$secondPiece;
+                                if ($posStart !== false && $posEnd !== false) {
+                                    $firstPiece = mb_strcut($data, 0, $posStart + strlen($globalReplacement['marker']));
+                                    $secondPiece = mb_strcut(
+                                        $data,
+                                        $posEnd,
+                                        strlen($data)
+                                    );
+
+                                    $data = $firstPiece.file_get_contents($globalReplacement['filePath']).$secondPiece;
+                                }
                             } else {
                                 $data = str_replace($globalReplacement['marker'], '', $data);
                                 $data = str_replace($globalReplacement['markerEnd'], '', $data);
