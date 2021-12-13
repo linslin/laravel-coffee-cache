@@ -512,7 +512,7 @@ class CoffeeCache
     {
 
         if ($this->minifyCacheFile && !$this->minifyDetectContentTypeToIgnore()) {
-            $cacheFileData = str_replace(['    ', '   ', '   '], '', $cacheFileData);
+            $cacheFileData = str_replace(['    ', '   ', '   '], ' ', $cacheFileData);
             $cacheFileData = preg_replace([
                 '/\>[^\S ]+/s',     // strip whitespaces after tags, except space
                 '/[^\S ]+\</s',     // strip whitespaces before tags, except space
