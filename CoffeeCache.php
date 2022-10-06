@@ -153,6 +153,11 @@ class CoffeeCache
     private $host = '';
 
     /**
+     * @var string
+     */
+    private $publicDir = '';
+
+    /**
      * The mobile detect service
      */
     private $mobileDetect = null;
@@ -170,11 +175,8 @@ class CoffeeCache
     {
         //Init
         $this->mobileDetect = new Mobile_Detect;
+        $this->publicDir = $publicDir;
         $this->host = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['SERVER_NAME'];
-        $this->cachedFilename = sha1($this->host.$this->getRequestUri()).'-'.$this->getAgent();
-        $this->cacheDirPath = $publicDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
-            . 'storage' . DIRECTORY_SEPARATOR
-            . 'coffeeCache' . DIRECTORY_SEPARATOR;
     }
 
 
@@ -249,6 +251,12 @@ class CoffeeCache
     public function handle()
     {
         if ($this->isCacheAble()) {
+
+            $this->cachedFilename = sha1($this->host.$this->getRequestUri()).'-'.$this->getAgent();
+            $this->cacheDirPath = $this->publicDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
+                . 'storage' . DIRECTORY_SEPARATOR
+                . 'coffeeCache' . DIRECTORY_SEPARATOR;
+
             $this->getCachedContent();
         }
     }
