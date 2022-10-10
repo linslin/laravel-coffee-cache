@@ -320,6 +320,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.23.1
+- Fixed `hostDisabled[]` handling.
+- 
 ### 1.23.0
 - Added `hostDisabled[]` configuration to prevent specific domains from caching.
 - 

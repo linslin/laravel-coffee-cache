@@ -246,7 +246,7 @@ class CoffeeCache
         }
 
         // check for disabled domain
-        if (sizeof($this->hostsDisabled) > 0 && !$shouldBeCached) {
+        if (sizeof($this->hostsDisabled) > 0) {
             foreach ($this->hostsDisabled as $hostDisabled) {
                 if (strpos($this->host, $hostDisabled) !== false) {
                     $shouldBeCached = false;
