@@ -13,6 +13,7 @@ require_once __DIR__. DIRECTORY_SEPARATOR. '..' . DIRECTORY_SEPARATOR . '..' . D
  * @property string $httpStatusCode
  * @property string $contentType
  * @property string $host
+ * @property array $hostsDisabled
  * @property boolean $cacheEnabled
  * @property boolean $gzipEnabled
  * @property boolean $minifyCacheFile
@@ -102,6 +103,12 @@ class CoffeeCache
      * Enabled hosts list. Optional, leave it as empty array if you want to cache all domains.
      */
     public $enabledHosts = [];
+
+    /**
+     * Disabled hosts list.
+     * @var array
+     */
+    public $hostsDisabled = [];
 
     /**
      * Enabled hosts list which should be cached with session if a cookie cached=1 is set.
@@ -231,10 +238,21 @@ class CoffeeCache
         }
 
         $shouldBeCached = false;
+
         if ($domainShouldBeCachedWithSession) {
             $shouldBeCached = isset($_COOKIE['cached']) && $_COOKIE['cached'] === '1';
         } else {
             $shouldBeCached = $domainShouldBeCached;
+        }
+
+        // check for disabled domain
+        if (sizeof($this->hostsDisabled) > 0 && !$shouldBeCached) {
+            foreach ($this->hostsDisabled as $hostDisabled) {
+                if (strpos($this->host, $hostDisabled) !== false) {
+                    $shouldBeCached = false;
+                    break;
+                }
+            }
         }
 
         return  $shouldBeCached
