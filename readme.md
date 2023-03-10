@@ -132,7 +132,7 @@ a user is not logged in. Create a cookie with cached=0 if a user is logged in.
 
     $coffeeCache->cookieHandledCacheEnabled = true;
 
-#### Enable cookie handled cache [optional]
+#### Enable compression [optional]
 Enable gzip compression for cache data. Default is `false`. 
 
     $coffeeCache->gzipEnabled = true;
