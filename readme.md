@@ -3,7 +3,7 @@
 [![Total Downloads](https://poser.pugx.org/linslin/laravel-coffee-cache/downloads)](https://packagist.org/packages/linslin/laravel-coffee-cache)
 [![License](https://poser.pugx.org/linslin/laravel-coffee-cache/license)](https://packagist.org/packages/linslin/laravel-coffee-cache)
 
-Store based lever out view cache for **Laravel 4.x, 5.x 6.x, 7.x and 8.x** . This cache hook in before composer autoload and 
+Store based lever out view cache for **Laravel 4.x, 5.x 6.x, 7.x, 8.x, 9.x and 10.x** . This cache hook in before composer autoload and 
 Laravel bootstrapping. It will push your application into light speed. By default, all GET-Requests will be cached.
 
 It's a coffee cache. You can drink more coffee instead of spending time to optimize your application or server 
@@ -319,6 +319,9 @@ E.g. inside a controller - example:
      
 
 ## Changelog
+
+### 1.24.0
+- Shrinked max disk space allowed to use from 95% to 90%.
 
 ### 1.23.1
 - Fixed `hostDisabled[]` handling.
