@@ -42,7 +42,7 @@ class CoffeeCache
     /**
      * @var float
      */
-    private $diskSpaceAllowedToUse = 95.00;
+    private $diskSpaceAllowedToUse = 90.00;
 
     /**
      * No caching if false
