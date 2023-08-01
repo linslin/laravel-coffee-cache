@@ -258,7 +258,6 @@ class CoffeeCache
         return  $shouldBeCached
             && $_SERVER['REQUEST_METHOD'] === 'GET'
             && $this->isCacheEnabled()
-            && $this->spaceLeftOnDevice()
             && !$this->detectExcludedUrl();
     }
 
@@ -460,23 +459,26 @@ class CoffeeCache
 
                 case 'file':
 
-                    $directoryName = substr($this->cachedFilename, 0, 4);
+                    if ($this->spaceLeftOnDevice()) {
 
-                    if (!is_dir($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName)) {
-                        mkdir($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName);
-                    }
+                        $directoryName = substr($this->cachedFilename, 0, 4);
 
-                    try {
+                        if (!is_dir($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName)) {
+                            mkdir($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName);
+                        }
 
-                        //write cache file
-                        file_put_contents(
-                            $this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename,
-                            $cacheData
-                        );
-                    } catch (Exception $exception) {
-                        //log this later
-                        if (file_exists($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName)) {
-                            unlink($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName);
+                        try {
+
+                            //write cache file
+                            file_put_contents(
+                                $this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename,
+                                $cacheData
+                            );
+                        } catch (Exception $exception) {
+                            //log this later
+                            if (file_exists($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName)) {
+                                unlink($this->cacheDirPath . DIRECTORY_SEPARATOR . $directoryName);
+                            }
                         }
                     }
 

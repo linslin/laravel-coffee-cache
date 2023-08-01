@@ -320,6 +320,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.24.2
+- SpaceLeftOnDevice statement moved into write on disc part.
+
 ### 1.24.1
 - Fixed space left on device statement.
 
