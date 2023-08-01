@@ -320,6 +320,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.24.1
+- Fixed space left on device statement.
+
 ### 1.24.0
 - Shrinked max disk space allowed to use from 95% to 90%.
  
