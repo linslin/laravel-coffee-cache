@@ -210,9 +210,10 @@ class CoffeeCache
 
 
     /**
+     * @param $checkSpaceLeftOnDevice
      * @return bool
      */
-    public function isCacheAble()
+    public function isCacheAble($checkSpaceLeftOnDevice = true)
     {
         //init
         $domainShouldBeCached = false;
@@ -255,10 +256,19 @@ class CoffeeCache
             }
         }
 
-        return  $shouldBeCached
-            && $_SERVER['REQUEST_METHOD'] === 'GET'
-            && $this->isCacheEnabled()
-            && !$this->detectExcludedUrl();
+        if ($checkSpaceLeftOnDevice) {
+            return $shouldBeCached
+                && $this->spaceLeftOnDevice()
+                && $_SERVER['REQUEST_METHOD'] === 'GET'
+                && $this->isCacheEnabled()
+                && !$this->detectExcludedUrl();
+        } else {
+
+            return $shouldBeCached
+                && $_SERVER['REQUEST_METHOD'] === 'GET'
+                && $this->isCacheEnabled()
+                && !$this->detectExcludedUrl();
+        }
     }
 
 
@@ -267,7 +277,7 @@ class CoffeeCache
      */
     public function handle()
     {
-        if ($this->isCacheAble()) {
+        if ($this->isCacheAble(false)) {
 
             $this->cachedFilename = sha1($this->host.$this->getRequestUri()).'-'.$this->getAgent();
             $this->cacheDirPath = $this->publicDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
@@ -298,6 +308,7 @@ class CoffeeCache
 
             case 'file':
 
+
                 $directoryName = substr($this->cachedFilename, 0, 4);
 
                 if (file_exists($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename)
@@ -321,7 +332,6 @@ class CoffeeCache
                 break;
 
             case 'redis':
-
 
                 try {
 
@@ -449,16 +459,16 @@ class CoffeeCache
     {
         $cacheData = $this->minifyCacheFile(ob_get_contents());
 
-        if ($this->isCacheAble() && strlen($cacheData) > 0 && $this->detectStatusCode()) {
+        if ($this->isCacheAble(false) && strlen($cacheData) > 0 && $this->detectStatusCode()) {
 
             if ($this->gzipEnabled) {
                 $cacheData = gzcompress($cacheData);
             }
 
+
             switch ($this->cacheDriver) {
 
                 case 'file':
-
                     if ($this->spaceLeftOnDevice()) {
 
                         $directoryName = substr($this->cachedFilename, 0, 4);
@@ -567,7 +577,7 @@ class CoffeeCache
     private function spaceLeftOnDevice()
     {
         if ($this->cacheDriver === 'file') {
-            return (disk_free_space(__dir__) / disk_total_space(__dir__)) * 100 >= $this->diskSpaceAllowedToUse;
+            return (disk_free_space(__dir__) / disk_total_space(__dir__)) * 100 >= ($this->diskSpaceAllowedToUse-100) * -1;
         }
 
         return true;
