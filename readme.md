@@ -320,9 +320,13 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.25.0
+- Redis now uses max 99% of its memory to avoid memory leak.
+- Fixed redis connection timeout exception catch.
+
 ### 1.24.3
 - SpaceLeftOnDevice now works as expected.
-- 
+
 ### 1.24.2
 - SpaceLeftOnDevice statement moved into write on disc part.
 
