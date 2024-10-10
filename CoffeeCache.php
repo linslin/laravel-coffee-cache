@@ -89,6 +89,11 @@ class CoffeeCache
     ];
 
     /**
+     * @var null|Redis
+     */
+    private $redisClient = null;
+
+    /**
      * @var string
      */
     private $cacheDirPath = '';
@@ -215,6 +220,7 @@ class CoffeeCache
      */
     public function isCacheAble($checkSpaceLeftOnDevice = true)
     {
+
         //init
         $domainShouldBeCached = false;
         $domainShouldBeCachedWithSession = false;
@@ -263,7 +269,6 @@ class CoffeeCache
                 && $this->isCacheEnabled()
                 && !$this->detectExcludedUrl();
         } else {
-
             return $shouldBeCached
                 && $_SERVER['REQUEST_METHOD'] === 'GET'
                 && $this->isCacheEnabled()
@@ -297,6 +302,29 @@ class CoffeeCache
         $this->setCachedContent();
     }
 
+
+    /**
+     * @return Redis|null
+     */
+    private function getRedisClient ()
+    {
+        if ($this->redisClient === null) {
+            try {
+                $this->redisClient = new Redis();
+                $this->redisClient->connect(
+                    $this->redisConnection['host'],
+                    $this->redisConnection['port'],
+                    $this->redisConnection['timeout']
+                );
+
+                if (strlen($this->redisConnection['password']) !== 0) {
+                    $this->getRedisClient()->auth($this->redisConnection['password']);
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        return $this->redisClient;
+    }
 
     /**
      * Get cached content
@@ -335,23 +363,13 @@ class CoffeeCache
 
                 try {
 
-                    $redisClient = new Redis();
-                    $redisClient->connect(
-                        $this->redisConnection['host'],
-                        $this->redisConnection['port'],
-                        $this->redisConnection['timeout']
-                    );
 
-                    if (strlen($this->redisConnection['password']) !== 0) {
-                        $redisClient->auth($this->redisConnection['password']);
-                    }
-
-                    if ($redisClient->exists($this->cachedFilename)) {
+                    if ($this->getRedisClient()->exists($this->cachedFilename)) {
                         header('coffee-cache-'.$this->getAgent().'-redis: 1');
-                        $data = $redisClient->get($this->cachedFilename);
+                        $data = $this->getRedisClient()->get($this->cachedFilename);
 
                         //update expire each time the key was hit
-                        $redisClient->expire(
+                        $this->getRedisClient()->expire(
                             $this->cachedFilename,
                             $this->cacheTime
                         );
@@ -363,19 +381,20 @@ class CoffeeCache
                         $data = $this->replaceGlobalMarkers($data);
 
                         //close redis connection
-                        $redisClient->close();
+                        $this->getRedisClient()->close();
 
                         echo $data;
                         exit;
                     } else {
 
                         //close redis connection, before ob start ;)
-                        $redisClient->close();
+                        $this->getRedisClient()->close();
 
                         ob_start();
                     }
 
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
+                    var_dump($e);
                 }
                 break;
         }
@@ -458,7 +477,6 @@ class CoffeeCache
     private function setCachedContent()
     {
         $cacheData = $this->minifyCacheFile(ob_get_contents());
-
         if ($this->isCacheAble(false) && strlen($cacheData) > 0 && $this->detectStatusCode()) {
 
             if ($this->gzipEnabled) {
@@ -496,28 +514,17 @@ class CoffeeCache
 
                 case 'redis':
                     try {
-                        $redisClient = new Redis();
-                        $redisClient->connect(
-                            $this->redisConnection['host'],
-                            $this->redisConnection['port'],
-                            $this->redisConnection['timeout']
-                        );
 
-                        if (strlen($this->redisConnection['password']) !== 0) {
-                            $redisClient->auth($this->redisConnection['password']);
-                        }
-
-                        $redisClient->setex(
+                        $this->getRedisClient()->setex(
                             $this->cachedFilename,
                             $this->cacheTime,
                             $cacheData
                         );
 
                         //close redis connection
-                        $redisClient->close();
+                        $this->getRedisClient()->close();
 
-                    } catch (Exception $e) {
-                    }
+                    } catch (Exception $e) {}
 
                     break;
             }
@@ -576,8 +583,17 @@ class CoffeeCache
      */
     private function spaceLeftOnDevice()
     {
-        if ($this->cacheDriver === 'file') {
-            return (disk_free_space(__dir__) / disk_total_space(__dir__)) * 100 >= ($this->diskSpaceAllowedToUse-100) * -1;
+
+        switch ($this->cacheDriver) {
+
+            case 'file':
+                return (disk_free_space(__dir__) / disk_total_space(__dir__)) * 100 >= ($this->diskSpaceAllowedToUse-100) * -1;
+                break;
+
+            case 'redis':
+                $redisInfo = $this->getRedisClient()->info();
+                return $redisInfo['used_memory'] <= ($redisInfo['maxmemory'] * 0.99);
+                break;
         }
 
         return true;
