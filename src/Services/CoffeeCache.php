@@ -85,6 +85,29 @@ class CoffeeCache
 
 
     /**
+     * Deletes expired file cache entries.
+     *
+     * @param int $cacheTime Cache lifetime in seconds
+     * @return array
+     * @throws \Exception
+     */
+    public function pruneExpiredCache ($cacheTime)
+    {
+        $driver = $this->getDriver();
+        if ($driver instanceof FileDriver) {
+            return $driver->pruneExpiredCache($cacheTime);
+        }
+
+        return [
+            'deleted_files' => 0,
+            'deleted_directories' => 0,
+            'reclaimed_bytes' => 0,
+            'failed_files' => 0,
+        ];
+    }
+
+
+    /**
      * @param string $routePath
      * @return bool
      */

@@ -15,6 +15,65 @@ class FileDriver
 {
 
     /**
+     * Deletes cache files older than the configured cache lifetime and removes
+     * empty hash directories.
+     *
+     * @param int $cacheTime Cache lifetime in seconds
+     * @return array
+     */
+    public function pruneExpiredCache ($cacheTime)
+    {
+        if (!is_int($cacheTime) || $cacheTime < 1) {
+            throw new \InvalidArgumentException('Cache time must be a positive integer.');
+        }
+
+        $cachePath = storage_path().DIRECTORY_SEPARATOR.'coffeeCache'.DIRECTORY_SEPARATOR;
+        $result = [
+            'deleted_files' => 0,
+            'deleted_directories' => 0,
+            'reclaimed_bytes' => 0,
+            'failed_files' => 0,
+        ];
+
+        if (!is_dir($cachePath)) {
+            return $result;
+        }
+
+        $expiresBefore = time() - $cacheTime;
+        $directories = glob($cachePath.'*', GLOB_ONLYDIR);
+
+        foreach ($directories ?: [] as $directoryPath) {
+            $files = glob($directoryPath.DIRECTORY_SEPARATOR.'*');
+
+            foreach ($files ?: [] as $filePath) {
+                if (!is_file($filePath)
+                    || !preg_match('/^[a-f0-9]{40}-(desktop|mobile)$/', basename($filePath))) {
+                    continue;
+                }
+
+                $modifiedAt = filemtime($filePath);
+                if ($modifiedAt === false || $modifiedAt > $expiresBefore) {
+                    continue;
+                }
+
+                $size = filesize($filePath);
+                if (@unlink($filePath)) {
+                    $result['deleted_files']++;
+                    $result['reclaimed_bytes'] += $size === false ? 0 : $size;
+                } else {
+                    $result['failed_files']++;
+                }
+            }
+
+            if ($this->isEmptyDir($directoryPath) && @rmdir($directoryPath)) {
+                $result['deleted_directories']++;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * @param string $routePath // e.g. test/page without domain.
      * @return array
      */

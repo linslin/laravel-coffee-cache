@@ -46,7 +46,7 @@ this to your facades in `config/app.php` in the `alias` array:
          * Cache driver: 'file' or 'redis'
          */
         'driver' => 'file',
-    
+
         /*
          * Redis connection
          */
@@ -57,6 +57,23 @@ this to your facades in `config/app.php` in the `alias` array:
             'timeout' => 0.5
         ],
     ];
+
+## Prune expired file cache entries
+
+The file driver does not remove expired entries automatically. Add this callback to the `schedule` method in
+`app/Console/Kernel.php` and use the same lifetime as `$coffeeCache->cacheTime` in `public/index.php`:
+
+    $schedule->call(function () {
+        CoffeeCache::pruneExpiredCache(60 * 60 * 24);
+    })->hourly()->withoutOverlapping();
+
+On Laravel 11, the same callback can be scheduled in `routes/console.php`:
+
+    use Illuminate\Support\Facades\Schedule;
+
+    Schedule::call(function () {
+        CoffeeCache::pruneExpiredCache(60 * 60 * 24);
+    })->hourly()->withoutOverlapping();
 
 ## API Documentation 
 
