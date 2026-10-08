@@ -3,7 +3,7 @@
 [![Total Downloads](https://poser.pugx.org/linslin/laravel-coffee-cache/downloads)](https://packagist.org/packages/linslin/laravel-coffee-cache)
 [![License](https://poser.pugx.org/linslin/laravel-coffee-cache/license)](https://packagist.org/packages/linslin/laravel-coffee-cache)
 
-Store based lever out view cache for **Laravel 4.x, 5.x 6.x, 7.x, 8.x, 9.x, 10.x and 11.x**. This cache hook in before composer autoload and 
+Store based lever out view cache for **Laravel 4.x, 5.x 6.x, 7.x, 8.x, 9.x, 10.x, 11.x, 12.x and 13.x**. This cache hook in before composer autoload and
 Laravel bootstrapping. It will push your application into light speed. By default, all GET-Requests will be cached.
 
 It's a coffee cache. You can drink more coffee instead of spending time to optimize your application or server 
@@ -336,6 +336,10 @@ E.g. inside a controller - example:
      
 
 ## Changelog
+
+### 1.26.0
+- Added `pruneExpiredCache()` to remove expired file cache entries and empty cache directories.
+- Added support for Laravel 12.x and 13.x.
 
 ### 1.25.0
 - Redis now uses max 99% of its memory to avoid memory leak.
