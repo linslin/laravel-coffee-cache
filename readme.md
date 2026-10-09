@@ -337,6 +337,9 @@ E.g. inside a controller - example:
 
 ## Changelog
 
+### 1.27.0
+- Release fix
+
 ### 1.26.0
 - Added `pruneExpiredCache()` to remove expired file cache entries and empty cache directories.
 - Added support for Laravel 12.x and 13.x.
