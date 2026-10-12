@@ -10,6 +10,7 @@ require_once __DIR__. DIRECTORY_SEPARATOR. '..' . DIRECTORY_SEPARATOR . '..' . D
  * @property string $cacheDirPath
  * @property string $cachedFilename
  * @property string $cacheDriver
+ * @property null|string $expirationMode
  * @property string $httpStatusCode
  * @property string $contentType
  * @property string $host
@@ -23,6 +24,9 @@ require_once __DIR__. DIRECTORY_SEPARATOR. '..' . DIRECTORY_SEPARATOR . '..' . D
  */
 class CoffeeCache
 {
+
+    const EXPIRATION_MODE_ABSOLUTE = 'absolute';
+    const EXPIRATION_MODE_SLIDING = 'sliding';
 
 
     // ############################################### Class variables // ##############################################
@@ -38,6 +42,16 @@ class CoffeeCache
      * @var int
      */
     public $cacheTime = 60 * 60 * 24 * 1;
+
+    /**
+     * Cache expiration mode, "absolute" or "sliding".
+     * Sliding expiration refreshes the lifetime after every cache hit.
+     * If unset, the original driver behavior is used: absolute for file and
+     * sliding for Redis.
+     *
+     * @var null|string
+     */
+    public $expirationMode = null;
 
     /**
      * @var float
@@ -338,12 +352,17 @@ class CoffeeCache
 
 
                 $directoryName = substr($this->cachedFilename, 0, 4);
+                $cacheFilePath = $this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename;
 
-                if (file_exists($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename)
-                    && filemtime($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename) + $this->cacheTime > time()) {
+                if (file_exists($cacheFilePath)
+                    && filemtime($cacheFilePath) + $this->cacheTime > time()) {
 
                     header('coffee-cache-'.$this->getAgent().'-file: 1');
-                    $data = file_get_contents($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename);
+                    $data = file_get_contents($cacheFilePath);
+
+                    if ($this->usesSlidingExpiration()) {
+                        touch($cacheFilePath);
+                    }
 
                     if ($this->gzipEnabled) {
                         $data = gzuncompress($data);
@@ -368,11 +387,13 @@ class CoffeeCache
                         header('coffee-cache-'.$this->getAgent().'-redis: 1');
                         $data = $this->getRedisClient()->get($this->cachedFilename);
 
-                        //update expire each time the key was hit
-                        $this->getRedisClient()->expire(
-                            $this->cachedFilename,
-                            $this->cacheTime
-                        );
+                        if ($this->usesSlidingExpiration()) {
+                            // Refresh the TTL after every cache hit.
+                            $this->getRedisClient()->expire(
+                                $this->cachedFilename,
+                                $this->cacheTime
+                            );
+                        }
 
                         if ($this->gzipEnabled) {
                             $data = gzuncompress($data);
@@ -398,6 +419,20 @@ class CoffeeCache
                 }
                 break;
         }
+    }
+
+    /**
+     * Preserve the original expiration behavior when no mode is configured.
+     *
+     * @return bool
+     */
+    private function usesSlidingExpiration()
+    {
+        if ($this->expirationMode === null) {
+            return $this->cacheDriver === 'redis';
+        }
+
+        return $this->expirationMode === self::EXPIRATION_MODE_SLIDING;
     }
 
 
