@@ -120,6 +120,16 @@ for the file driver and `sliding` for Redis.
 
     $coffeeCache->expirationMode = CoffeeCache::EXPIRATION_MODE_SLIDING;
 
+#### Cache the response Content-Type [optional|default:false]
+Store the response `Content-Type` with the body and restore it on file and Redis cache hits.
+
+    $coffeeCache->cacheContentType = true;
+
+#### Refresh the Redis TTL on cache hits [optional|default:true]
+Set this to `false` to keep the Redis TTL relative to the original write time.
+
+    $coffeeCache->refreshRedisTtlOnHit = false;
+
 #### Configure the cache driver (file, redis) [optional|default:'file'|'redis']
 
     $coffeeCache->cacheDriver = 'redis';
@@ -344,6 +354,11 @@ E.g. inside a controller - example:
      
 
 ## Changelog
+
+### 1.27.0
+- Added configurable cache expiration modes.
+- Added optional `Content-Type` caching for file and Redis cache hits.
+- Added `refreshRedisTtlOnHit` option to disable Redis TTL refreshes on cache hits.
 
 ### 1.26.0
 - Added `pruneExpiredCache()` to remove expired file cache entries and empty cache directories.
