@@ -359,6 +359,7 @@ E.g. inside a controller - example:
 - Added configurable cache expiration modes.
 - Added optional `Content-Type` caching for file and Redis cache hits.
 - Added `refreshRedisTtlOnHit` option to disable Redis TTL refreshes on cache hits.
+- Release fix
 
 ### 1.26.0
 - Added `pruneExpiredCache()` to remove expired file cache entries and empty cache directories.
