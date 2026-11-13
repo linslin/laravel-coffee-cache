@@ -65,7 +65,7 @@ The file driver does not remove expired entries automatically. Add this callback
 
     $schedule->call(function () {
         CoffeeCache::pruneExpiredCache(60 * 60 * 24);
-    })->hourly()->withoutOverlapping();
+    })->hourly()->name('CoffeeCache::pruneExpiredCache')->withoutOverlapping();
 
 On Laravel 11, the same callback can be scheduled in `routes/console.php`:
 
@@ -73,7 +73,7 @@ On Laravel 11, the same callback can be scheduled in `routes/console.php`:
 
     Schedule::call(function () {
         CoffeeCache::pruneExpiredCache(60 * 60 * 24);
-    })->hourly()->withoutOverlapping();
+    })->hourly()->name('CoffeeCache::pruneExpiredCache')->withoutOverlapping();
 
 ## API Documentation 
 
@@ -111,7 +111,25 @@ Default: no query parameter is exclude
 Flag for easy disabling the cache.
 
     $coffeeCache->cacheEnabled = true;   
-    
+
+#### Configure the expiration mode [optional]
+Use `sliding` to refresh the cache lifetime after every cache hit, or `absolute`
+to let an entry expire after the configured cache time regardless of cache hits.
+If no mode is configured, the original driver behavior is preserved: `absolute`
+for the file driver and `sliding` for Redis.
+
+    $coffeeCache->expirationMode = CoffeeCache::EXPIRATION_MODE_SLIDING;
+
+#### Cache the response Content-Type [optional|default:false]
+Store the response `Content-Type` with the body and restore it on file and Redis cache hits.
+
+    $coffeeCache->cacheContentType = true;
+
+#### Refresh the Redis TTL on cache hits [optional|default:true]
+Set this to `false` to keep the Redis TTL relative to the original write time.
+
+    $coffeeCache->refreshRedisTtlOnHit = false;
+
 #### Configure the cache driver (file, redis) [optional|default:'file'|'redis']
 
     $coffeeCache->cacheDriver = 'redis';
@@ -338,6 +356,9 @@ E.g. inside a controller - example:
 ## Changelog
 
 ### 1.27.0
+- Added configurable cache expiration modes.
+- Added optional `Content-Type` caching for file and Redis cache hits.
+- Added `refreshRedisTtlOnHit` option to disable Redis TTL refreshes on cache hits.
 - Release fix
 
 ### 1.26.0
