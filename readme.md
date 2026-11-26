@@ -355,10 +355,12 @@ E.g. inside a controller - example:
 
 ## Changelog
 
-### 1.27.0
+### 1.28.0
 - Added configurable cache expiration modes.
 - Added optional `Content-Type` caching for file and Redis cache hits.
 - Added `refreshRedisTtlOnHit` option to disable Redis TTL refreshes on cache hits.
+- 
+### 1.27.0
 - Release fix
 
 ### 1.26.0
