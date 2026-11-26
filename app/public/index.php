@@ -76,6 +76,7 @@ $response = $kernel->handle(
 
 if ($coffeeCache->isCacheAble()) {
     $coffeeCache->httpStatusCode = $response->status();
+    $coffeeCache->contentType = $response->headers->get('content-type');
     $response->sendHeaders();
     echo $response->content();
 } else {

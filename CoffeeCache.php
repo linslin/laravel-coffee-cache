@@ -10,8 +10,11 @@ require_once __DIR__. DIRECTORY_SEPARATOR. '..' . DIRECTORY_SEPARATOR . '..' . D
  * @property string $cacheDirPath
  * @property string $cachedFilename
  * @property string $cacheDriver
- * @property string $httpStatusCode
- * @property string $contentType
+ * @property null|string $expirationMode
+ * @property boolean $cacheContentType
+ * @property boolean $refreshRedisTtlOnHit
+ * @property null|int $httpStatusCode
+ * @property null|string $contentType
  * @property string $host
  * @property array $hostsDisabled
  * @property boolean $cacheEnabled
@@ -23,6 +26,11 @@ require_once __DIR__. DIRECTORY_SEPARATOR. '..' . DIRECTORY_SEPARATOR . '..' . D
  */
 class CoffeeCache
 {
+
+    const EXPIRATION_MODE_ABSOLUTE = 'absolute';
+    const EXPIRATION_MODE_SLIDING = 'sliding';
+
+    const CACHE_CONTENT_TYPE_PREFIX = "COFFEE-CACHE-CONTENT-TYPE:1:";
 
 
     // ############################################### Class variables // ##############################################
@@ -38,6 +46,30 @@ class CoffeeCache
      * @var int
      */
     public $cacheTime = 60 * 60 * 24 * 1;
+
+    /**
+     * Cache expiration mode, "absolute" or "sliding".
+     * Sliding expiration refreshes the lifetime after every cache hit.
+     * If unset, the original driver behavior is used: absolute for file and
+     * sliding for Redis.
+     *
+     * @var null|string
+     */
+    public $expirationMode = null;
+
+    /**
+     * Store and restore the response Content-Type.
+     *
+     * @var bool
+     */
+    public $cacheContentType = false;
+
+    /**
+     * Refresh the Redis TTL after every cache hit.
+     *
+     * @var bool
+     */
+    public $refreshRedisTtlOnHit = true;
 
     /**
      * @var float
@@ -139,7 +171,7 @@ class CoffeeCache
     public $httpStatusCode = null;
 
     /**
-     * @var null|int
+     * @var null|string
      */
     public $contentType = null;
 
@@ -338,12 +370,21 @@ class CoffeeCache
 
 
                 $directoryName = substr($this->cachedFilename, 0, 4);
+                $cacheFilePath = $this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename;
 
-                if (file_exists($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename)
-                    && filemtime($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename) + $this->cacheTime > time()) {
+                if (file_exists($cacheFilePath)
+                    && filemtime($cacheFilePath) + $this->cacheTime > time()) {
 
                     header('coffee-cache-'.$this->getAgent().'-file: 1');
-                    $data = file_get_contents($this->cacheDirPath . $directoryName . DIRECTORY_SEPARATOR . $this->cachedFilename);
+                    $data = file_get_contents($cacheFilePath);
+
+                    $cacheEntry = $this->decodeCacheEntry($data);
+                    $data = $cacheEntry['content'];
+                    $this->sendCachedContentType($cacheEntry['content_type']);
+
+                    if ($this->usesSlidingExpiration()) {
+                        touch($cacheFilePath);
+                    }
 
                     if ($this->gzipEnabled) {
                         $data = gzuncompress($data);
@@ -368,11 +409,17 @@ class CoffeeCache
                         header('coffee-cache-'.$this->getAgent().'-redis: 1');
                         $data = $this->getRedisClient()->get($this->cachedFilename);
 
-                        //update expire each time the key was hit
-                        $this->getRedisClient()->expire(
-                            $this->cachedFilename,
-                            $this->cacheTime
-                        );
+                        $cacheEntry = $this->decodeCacheEntry($data);
+                        $data = $cacheEntry['content'];
+                        $this->sendCachedContentType($cacheEntry['content_type']);
+
+                        if ($this->refreshRedisTtlOnHit && $this->usesSlidingExpiration()) {
+                            // Refresh the TTL after every cache hit.
+                            $this->getRedisClient()->expire(
+                                $this->cachedFilename,
+                                $this->cacheTime
+                            );
+                        }
 
                         if ($this->gzipEnabled) {
                             $data = gzuncompress($data);
@@ -397,6 +444,97 @@ class CoffeeCache
                     var_dump($e);
                 }
                 break;
+        }
+    }
+
+    /**
+     * Preserve the original expiration behavior when no mode is configured.
+     *
+     * @return bool
+     */
+    private function usesSlidingExpiration()
+    {
+        if ($this->expirationMode === null) {
+            return $this->cacheDriver === 'redis';
+        }
+
+        return $this->expirationMode === self::EXPIRATION_MODE_SLIDING;
+    }
+
+    /**
+     * Add the Content-Type to a cache entry while keeping the body binary-safe.
+     *
+     * @param string $content
+     * @return string
+     */
+    private function encodeCacheEntry($content)
+    {
+        if (!$this->cacheContentType || !is_string($this->contentType) || $this->contentType === '') {
+            return $content;
+        }
+
+        $metadata = json_encode(['content_type' => $this->contentType]);
+
+        if ($metadata === false) {
+            return $content;
+        }
+
+        return self::CACHE_CONTENT_TYPE_PREFIX.$metadata."\n".$content;
+    }
+
+    /**
+     * Decode a cache entry. Entries created before metadata support remain valid.
+     *
+     * @param string $data
+     * @return array
+     */
+    private function decodeCacheEntry($data)
+    {
+        $legacyEntry = [
+            'content' => $data,
+            'content_type' => null,
+        ];
+
+        if (!$this->cacheContentType
+            || !is_string($data)
+            || strpos($data, self::CACHE_CONTENT_TYPE_PREFIX) !== 0) {
+            return $legacyEntry;
+        }
+
+        $metadataStart = strlen(self::CACHE_CONTENT_TYPE_PREFIX);
+        $metadataEnd = strpos($data, "\n", $metadataStart);
+        if ($metadataEnd === false) {
+            return $legacyEntry;
+        }
+
+        $metadataJson = substr($data, $metadataStart, $metadataEnd - $metadataStart);
+        $metadata = json_decode($metadataJson, true);
+
+        if (!is_array($metadata)
+            || !isset($metadata['content_type'])
+            || !is_string($metadata['content_type'])) {
+            return $legacyEntry;
+        }
+
+        return [
+            'content' => substr($data, $metadataEnd + 1),
+            'content_type' => $metadata['content_type'],
+        ];
+    }
+
+    /**
+     * Restore the Content-Type for a cached response.
+     *
+     * @param null|string $contentType
+     */
+    private function sendCachedContentType($contentType)
+    {
+        if ($this->cacheContentType
+            && is_string($contentType)
+            && $contentType !== ''
+            && strpos($contentType, "\r") === false
+            && strpos($contentType, "\n") === false) {
+            header('Content-Type: '.$contentType);
         }
     }
 
@@ -482,6 +620,8 @@ class CoffeeCache
             if ($this->gzipEnabled) {
                 $cacheData = gzcompress($cacheData);
             }
+
+            $cacheData = $this->encodeCacheEntry($cacheData);
 
 
             switch ($this->cacheDriver) {
